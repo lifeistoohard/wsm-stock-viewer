@@ -1,5 +1,5 @@
 const SHEET_ID = "19pJJpiDKatYgUmO_43SUyECxqTYaqfhwcQwYiuxn-d8";
-const API_KEY = "YOUR_API_KEY";
+const API_KEY = "AIzaSyAki5uoqv3JpG7sqZ7crpaALomcUxlD72k";
 const RANGE = "A:H";
 
 let allRows = [];
