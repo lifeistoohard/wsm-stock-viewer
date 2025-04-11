@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>WSM Stock Viewer</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 2rem;
+      background: #f2f2f2;
+      max-width: 700px;
+      margin: auto;
+    }
+    h1 {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+    input, select {
+      padding: 8px;
+      font-size: 16px;
+      width: 300px;
+      margin-bottom: 10px;
+    }
+    button {
+      padding: 8px 12px;
+      font-size: 16px;
+      margin-left: 8px;
+      cursor: pointer;
+    }
+    #info {
+      font-size: 18px;
+      margin-top: 20px;
+      background: white;
+      padding: 16px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .credit {
+      text-align: center;
+      font-size: 14px;
+      color: #888;
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔍 ค้นหาจากเลข Mat.no หรือ เลือกรุ่นรถและระบบ</h1>
+
+  <div>
+    <input type="text" id="search" placeholder="ใส่รหัส WSM เช่น 1500001" />
+    <button onclick="manualSearch()">ค้นหา</button>
+  </div>
+
+  <div>
+    <select id="modelSelect" onchange="searchByDropdowns()">
+      <option value="">🔽 เลือกรุ่น</option>
+    </select>
+    <select id="systemSelect" onchange="searchByDropdowns()">
+      <option value="">🔽 เลือกระบบ</option>
+    </select>
+  </div>
+
+  <div id="info"></div>
+
+  <p class="credit">Created by <strong>NA</strong></p>
+
+  <script src="index.js"></script>
+</body>
+</html>
