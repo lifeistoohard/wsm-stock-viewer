@@ -1,6 +1,6 @@
 const SHEET_ID = "19pJJpiDKatYgUmO_43SUyECxqTYaqfhwcQwYiuxn-d8";
 const API_KEY = "AIzaSyAki5uoqv3JpG7sqZ7crpaALomcUxlD72k";
-const RANGE = "Maintenance!A2:E";
+const RANGE = "Maintenance!B2:G";  // เปลี่ยนให้ดึงคอลัมน์ B ถึง G
 
 let rawData = [];
 
@@ -72,7 +72,7 @@ function showResults(model, year, system) {
     container.innerHTML += `
       <div class="card">
         <p><strong>📘 รายการ:</strong> ${row[3]}</p>
-        <p><strong>📅 ระยะ:</strong> ${row[4]}</p>
+        <p><strong>📅 ระยะ:</strong> ${row[5]}</p>
       </div>
     `;
   });
