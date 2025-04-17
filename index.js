@@ -108,7 +108,7 @@ function searchByDropdowns() {
         <p><strong>📅 ปี:</strong> ${row[5]}</p>
         <p><strong>📍 Location:</strong> ${location}</p>
         <p><strong>🆔 Code หน้าปก:</strong> ${cover}</p>
-        <p><strong>📦 รหัสสินค้า:</strong> ${row[0]}</p>
+        <p><strong>📦 หมายเลข Mat.:</strong> ${row[0]}</p>
         <p><strong>📉 คงเหลือ:</strong> <span style="font-size: 24px; color: green;">${row[1]}</span> ชิ้น</p>
       </div>
     `;
