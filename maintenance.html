@@ -2,58 +2,44 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Maintenance Viewer</title>
   <style>
     body {
       font-family: sans-serif;
+      background: #f2f2f2;
       padding: 2rem;
-      background-color: #f4f4f4;
       max-width: 800px;
       margin: auto;
     }
     h1 {
       font-size: 24px;
-      text-align: center;
+      margin-bottom: 1rem;
     }
-    select, input {
-      font-size: 16px;
+    select {
       padding: 8px;
-      margin: 8px 4px;
+      font-size: 16px;
+      margin-right: 10px;
+      margin-bottom: 12px;
     }
     #results {
-      background: white;
       margin-top: 20px;
+    }
+    .card {
+      background: white;
       padding: 16px;
       border-radius: 10px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      margin-bottom: 16px;
     }
   </style>
 </head>
 <body>
-
-  <h1>🛠️ Maintenance Search</h1>
-
-  <label for="model">Model:</label>
-  <select id="model"></select>
-
-  <label for="modelYear">Model Year:</label>
-  <select id="modelYear"></select>
-
-  <label for="system">System:</label>
-  <select id="system"></select>
-
-  <label for="list">List:</label>
-  <select id="list"></select>
-
-  <br>
-
-  <label for="search">🔍 หรือพิมพ์ชื่อรายการ:</label>
-  <input type="text" id="search" placeholder="กรอกรายการเช่น น้ำมันเครื่อง" />
-
+  <h1>🛠️ ตรวจสอบ Maintenance</h1>
+  <select id="model"><option>Loading...</option></select>
+  <select id="modelYear"><option>เลือกรุ่นรถก่อน</option></select>
+  <select id="system"><option>เลือกรุ่นย่อยก่อน</option></select>
   <div id="results"></div>
 
-  <!-- ✅ โหลดสคริปต์แบบ defer เพื่อให้ DOM โหลดเสร็จก่อน -->
-  <script src="maintenance.js" defer></script>
+  <script src="maintenance.js"></script>
 </body>
 </html>
