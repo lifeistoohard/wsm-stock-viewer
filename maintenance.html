@@ -46,16 +46,33 @@
   .card-detail i {
     margin-right: 8px;
   }
-    select {
-  font-size: 16px;
-  padding: 8px 12px;
-  width: 200px;
-  margin-right: 12px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-}
 
-</style>
+  select {
+    font-size: 16px;
+    padding: 8px 12px;
+    width: 200px;
+    margin-right: 12px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+  }
+
+  footer {
+    margin-top: 40px;
+    text-align: center;
+    font-size: 14px;
+    color: #555;
+  }
+
+  .link-button {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #1976d2;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    margin-top: 8px;
+  }
+  </style>
 </head>
 <body>
   <h1>🛠️ ค้นหารายการบำรุงรักษา</h1>
@@ -63,6 +80,13 @@
   <select id="modelYear"><option>เลือกรุ่นปี</option></select>
   <select id="system"><option>เลือกระบบ</option></select>
   <div id="results"></div>
+
+  <footer>
+    <p>สร้างโดย <strong>NA</strong></p>
+    <a class="link-button" href="https://lifeistoohard.github.io/wsm-stock-viewer">
+      🔄 กลับไปหน้าหลัก
+    </a>
+  </footer>
 
   <script src="maintenance.js"></script>
 </body>
