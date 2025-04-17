@@ -1,6 +1,6 @@
 const SHEET_ID = "19pJJpiDKatYgUmO_43SUyECxqTYaqfhwcQwYiuxn-d8";
 const API_KEY = "AIzaSyAki5uoqv3JpG7sqZ7crpaALomcUxlD72k";
-const RANGE = "Maintenance!B2:G";  // เปลี่ยนให้ดึงคอลัมน์ B ถึง G
+const RANGE = "Maintenance!B2:G";
 
 let rawData = [];
 
@@ -13,9 +13,10 @@ fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}
 
 function populateModelDropdown() {
   const modelSet = new Set(rawData.map(row => row[0]));
+  const modelList = Array.from(modelSet).sort();  // 🔹 เรียง A-Z ที่นี่
   const modelSelect = document.getElementById("model");
   modelSelect.innerHTML = "<option value=''>-- เลือก Model --</option>";
-  modelSet.forEach(model => {
+  modelList.forEach(model => {
     modelSelect.innerHTML += `<option value="${model}">${model}</option>`;
   });
 
