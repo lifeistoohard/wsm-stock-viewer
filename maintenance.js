@@ -1,114 +1,106 @@
 // maintenance.js
 
-// กำหนดค่า Spreadsheet ID และ API Key ของคุณ
 const SHEET_ID = "19pJJpiDKatYgUmO_43SUyECxqTYaqfhwcQwYiuxn-d8";
 const API_KEY = "AIzaSyAki5uoqv3JpG7sqZ7crpaALomcUxlD72k";
-const SHEET_NAME = 'Maintenance';
+const RANGE = "Maintenance!A:H";
+const endpoint = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}?key=${API_KEY}`;
 
-// ตัวแปรสำหรับเก็บข้อมูลทั้งหมด
-let allData = [];
+let rawData = [];
 
-// ฟังก์ชันสำหรับดึงข้อมูลจาก Google Sheets
-async function fetchData() {
-  const range = `${SHEET_NAME}!A:H`;
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}?key=${API_KEY}`;
-
-  try {
-    const response = await fetch(url);
-    const data = await response.json();
-
-    if (data.values && data.values.length > 1) {
-      // ลบแถวหัวตาราง
-      allData = data.values.slice(1);
-      populateDropdowns();
-    } else {
-      console.error('ไม่พบข้อมูลในชีต');
-    }
-  } catch (error) {
-    console.error('เกิดข้อผิดพลาดในการดึงข้อมูล:', error);
-  }
-}
-
-// ฟังก์ชันสำหรับเติมข้อมูลลงใน dropdowns
-function populateDropdowns() {
-  const models = [...new Set(allData.map(row => row[1]))];
-  const years = [...new Set(allData.map(row => row[2]))];
-  const systems = [...new Set(allData.map(row => row[3]))];
-  const lists = [...new Set(allData.map(row => row[4]))];
-
-  populateSelect('model', models);
-  populateSelect('modelYear', years);
-  populateSelect('system', systems);
-  populateSelect('list', lists);
-}
-
-// ฟังก์ชันสำหรับเติมตัวเลือกลงใน select element
-function populateSelect(id, items) {
-  const select = document.getElementById(id);
-  select.innerHTML = '<option value="">-- เลือก --</option>';
-  items.forEach(item => {
-    const option = document.createElement('option');
-    option.value = item;
-    option.textContent = item;
-    select.appendChild(option);
+// โหลดข้อมูลจาก Google Sheet
+fetch(endpoint)
+  .then(res => res.json())
+  .then(data => {
+    rawData = data.values.slice(1); // ตัด header ทิ้ง
+    updateModelDropdown();
+  })
+  .catch(err => {
+    console.error("Error loading data:", err);
   });
+
+function updateModelDropdown() {
+  const modelSet = new Set(rawData.map(row => row[1]));
+  const modelDropdown = document.getElementById("model");
+  modelDropdown.innerHTML = '<option value="">เลือก Model</option>';
+  modelSet.forEach(model => {
+    modelDropdown.innerHTML += `<option value="${model}">${model}</option>`;
+  });
+
+  modelDropdown.onchange = updateModelYearDropdown;
 }
 
-// ฟังก์ชันสำหรับแสดงผลลัพธ์
-function displayResults(results) {
-  const output = document.getElementById('results');
-  if (results.length === 0) {
-    output.innerHTML = '<p>❌ ไม่พบข้อมูลที่ตรงกับเงื่อนไข</p>';
-    return;
-  }
+function updateModelYearDropdown() {
+  const model = document.getElementById("model").value;
+  const modelYearSet = new Set(
+    rawData.filter(row => row[1] === model).map(row => row[2])
+  );
+  const modelYearDropdown = document.getElementById("modelYear");
+  modelYearDropdown.innerHTML = '<option value="">เลือก Model Year</option>';
+  modelYearSet.forEach(my => {
+    modelYearDropdown.innerHTML += `<option value="${my}">${my}</option>`;
+  });
 
-  output.innerHTML = results.map(row => `
-    <div style="margin-bottom: 16px;">
-      <p><strong>Model:</strong> ${row[1]}</p>
-      <p><strong>Model Year:</strong> ${row[2]}</p>
-      <p><strong>System:</strong> ${row[3]}</p>
-      <p><strong>List:</strong> ${row[4]}</p>
-      <p><strong>Period:</strong> ${row[6]}</p>
+  modelYearDropdown.onchange = updateSystemDropdown;
+  document.getElementById("system").innerHTML = '<option value="">เลือก System</option>';
+  document.getElementById("list").innerHTML = '<option value="">เลือก List</option>';
+  document.getElementById("results").innerHTML = '';
+}
+
+function updateSystemDropdown() {
+  const model = document.getElementById("model").value;
+  const modelYear = document.getElementById("modelYear").value;
+  const systemSet = new Set(
+    rawData.filter(row => row[1] === model && row[2] === modelYear).map(row => row[3])
+  );
+  const systemDropdown = document.getElementById("system");
+  systemDropdown.innerHTML = '<option value="">เลือก System</option>';
+  systemSet.forEach(system => {
+    systemDropdown.innerHTML += `<option value="${system}">${system}</option>`;
+  });
+
+  systemDropdown.onchange = updateListDropdown;
+  document.getElementById("list").innerHTML = '<option value="">เลือก List</option>';
+  document.getElementById("results").innerHTML = '';
+}
+
+function updateListDropdown() {
+  const model = document.getElementById("model").value;
+  const modelYear = document.getElementById("modelYear").value;
+  const system = document.getElementById("system").value;
+  const listSet = new Set(
+    rawData.filter(row => row[1] === model && row[2] === modelYear && row[3] === system).map(row => row[4])
+  );
+  const listDropdown = document.getElementById("list");
+  listDropdown.innerHTML = '<option value="">เลือก List</option>';
+  listSet.forEach(list => {
+    listDropdown.innerHTML += `<option value="${list}">${list}</option>`;
+  });
+
+  listDropdown.onchange = showFilteredResults;
+  document.getElementById("results").innerHTML = '';
+}
+
+function showFilteredResults() {
+  const model = document.getElementById("model").value;
+  const modelYear = document.getElementById("modelYear").value;
+  const system = document.getElementById("system").value;
+  const list = document.getElementById("list").value;
+
+  const filtered = rawData.filter(row =>
+    row[1] === model &&
+    row[2] === modelYear &&
+    row[3] === system &&
+    row[4] === list
+  );
+
+  const resultsDiv = document.getElementById("results");
+  resultsDiv.innerHTML = filtered.map(row => `
+    <div style="margin-bottom: 16px; padding: 12px; background: #fff; border-radius: 8px; box-shadow: 0 0 6px rgba(0,0,0,0.1);">
+      <p><strong>🚗 Model:</strong> ${row[1]}</p>
+      <p><strong>📆 Year:</strong> ${row[2]}</p>
+      <p><strong>🧩 System:</strong> ${row[3]}</p>
+      <p><strong>📝 List:</strong> ${row[4]}</p>
+      <p><strong>🛠️ Period:</strong> ${row[7]}</p>
     </div>
-  `).join('');
+  `).join("");
 }
-
-// ฟังก์ชันสำหรับกรองข้อมูลตามเงื่อนไขที่เลือก
-function filterData() {
-  const model = document.getElementById('model').value;
-  const year = document.getElementById('modelYear').value;
-  const system = document.getElementById('system').value;
-  const list = document.getElementById('list').value;
-
-  const filtered = allData.filter(row => {
-    return (!model || row[1] === model) &&
-           (!year || row[2] === year) &&
-           (!system || row[3] === system) &&
-           (!list || row[4] === list);
-  });
-
-  displayResults(filtered);
-}
-
-// ฟังก์ชันสำหรับค้นหาด้วยการพิมพ์
-function searchByText() {
-  const keyword = document.getElementById('search').value.trim().toLowerCase();
-  if (!keyword) {
-    displayResults([]);
-    return;
-  }
-
-  const filtered = allData.filter(row => row[4].toLowerCase().includes(keyword));
-  displayResults(filtered);
-}
-
-// เพิ่ม event listeners
-document.addEventListener('DOMContentLoaded', () => {
-  fetchData();
-
-  document.getElementById('model').addEventListener('change', filterData);
-  document.getElementById('modelYear').addEventListener('change', filterData);
-  document.getElementById('system').addEventListener('change', filterData);
-  document.getElementById('list').addEventListener('change', filterData);
-  document.getElementById('search').addEventListener('input', searchByText);
-});
