@@ -1,92 +1,63 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Maintenance Viewer</title>
   <style>
-  body {
-    font-family: sans-serif;
-    background: #f2f2f2;
-    padding: 2rem;
-    max-width: 800px;
-    margin: auto;
-  }
-
-  .card {
-    background: white;
-    padding: 16px 24px;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    margin-bottom: 16px;
-    border-left: 6px solid #1976d2;
-    transition: transform 0.2s;
-  }
-
-  .card:hover {
-    transform: scale(1.02);
-  }
-
-  .card-title {
-    font-size: 20px;
-    font-weight: bold;
-    color: #0d47a1;
-    margin-bottom: 8px;
-    display: flex;
-    align-items: center;
-  }
-
-  .card-detail {
-    font-size: 16px;
-    color: #333;
-    display: flex;
-    align-items: center;
-  }
-
-  .card-title i,
-  .card-detail i {
-    margin-right: 8px;
-  }
-
-  select {
-    font-size: 16px;
-    padding: 8px 12px;
-    width: 200px;
-    margin-right: 12px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-  }
-
-  footer {
-    margin-top: 40px;
-    text-align: center;
-    font-size: 14px;
-    color: #555;
-  }
-
-  .link-button {
-    display: inline-block;
-    padding: 10px 20px;
-    background-color: #1976d2;
-    color: white;
-    text-decoration: none;
-    border-radius: 6px;
-    margin-top: 8px;
-  }
+    body {
+      font-family: sans-serif;
+      background: #f2f2f2;
+      padding: 2rem;
+      max-width: 800px;
+      margin: auto;
+    }
+    select, input[type="text"] {
+      font-size: 16px;
+      padding: 8px 12px;
+      width: 200px;
+      margin: 0 8px 16px 0;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    .card {
+      background: white;
+      padding: 16px 24px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      margin-bottom: 16px;
+      border-left: 6px solid #1976d2;
+    }
+    .card-title {
+      font-size: 20px;
+      font-weight: bold;
+      color: darkblue;
+      margin-bottom: 8px;
+    }
+    .card-meta {
+      font-size: 16px;
+      color: #333;
+    }
   </style>
 </head>
 <body>
-  <h1>🛠️ ค้นหารายการบำรุงรักษา</h1>
-  <select id="model"><option>Loading...</option></select>
-  <select id="modelYear"><option>เลือกรุ่นปี</option></select>
-  <select id="system"><option>เลือกระบบ</option></select>
+  <h1>🔧 ค้นหารายการบำรุงรักษา</h1>
+
+  <div>
+    <select id="model"><option>Loading...</option></select>
+    <select id="modelYear"><option>เลือกรุ่นปี</option></select>
+    <select id="system"><option>เลือกระบบ</option></select>
+  </div>
+
+  <div>
+    <input type="text" id="keywordSearch" placeholder="🔍 ค้นหาด้วยคำ เช่น น้ำมันเกียร์" />
+    <button onclick="searchByKeyword()">ค้นหา</button>
+  </div>
+
   <div id="results"></div>
 
-  <footer>
-    <p>Created by <strong>NA</strong></p>
-    <a class="link-button" href="https://lifeistoohard.github.io/wsm-stock-viewer">
-      🔍 ค้นหา WSM Stock
-    </a>
-  </footer>
+  <p style="text-align:center; color: #888; margin-top: 2rem;">
+    Created by <strong>NA</strong> | <a href="index.html">กลับหน้าหลัก</a>
+  </p>
 
   <script src="maintenance.js"></script>
 </body>
