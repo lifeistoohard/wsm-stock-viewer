@@ -1,8 +1,8 @@
 // maintenance.js
 
 // กำหนดค่า Spreadsheet ID และ API Key ของคุณ
-const SHEET_ID = 'YOUR_SPREADSHEET_ID';
-const API_KEY = 'YOUR_API_KEY';
+const SHEET_ID = "19pJJpiDKatYgUmO_43SUyECxqTYaqfhwcQwYiuxn-d8";
+const API_KEY = "AIzaSyAki5uoqv3JpG7sqZ7crpaALomcUxlD72k";
 const SHEET_NAME = 'Maintenance';
 
 // ตัวแปรสำหรับเก็บข้อมูลทั้งหมด
