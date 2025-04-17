@@ -70,14 +70,17 @@ function showResults(model, year, system) {
   }
 
   filtered.forEach(row => {
-    container.innerHTML += `
-      <div class="card">
-        <p><strong>📘 รายการ:</strong> ${row[3]}</p>
-        <p><strong>📅 ระยะ:</strong> ${row[5]}</p>
+  container.innerHTML += `
+    <div class="card">
+      <div class="card-title">
+        <i>📘</i> รายการ: ${row[3]}
       </div>
-    `;
-  });
-}
+      <div class="card-detail">
+        <i>📅</i> ระยะ: ${row[5]}
+      </div>
+    </div>
+  `;
+});
 
 function clearDropdown(id) {
   const dropdown = document.getElementById(id);
