@@ -72,8 +72,8 @@ function showResults(model, year, system) {
   filtered.forEach(row => {
     container.innerHTML += `
       <div class="card">
-        <p><strong>📘 </strong> ${row[3]}</p>
-        <p><strong></strong> ${row[5]}</p>
+        <p><strong>📘  ${row[3]}</strong></p>
+        <p><strong>${row[5]}</strong></p>
       </div>
     `;
   });
