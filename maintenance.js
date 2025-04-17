@@ -13,7 +13,7 @@ fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}
 
 function populateModelDropdown() {
   const modelSet = new Set(rawData.map(row => row[0]));
-  const modelList = Array.from(modelSet).sort();  // 🔹 เรียง A-Z
+  const modelList = Array.from(modelSet).sort();  // 🔹 เรียง A-Z ที่นี่
   const modelSelect = document.getElementById("model");
   modelSelect.innerHTML = "<option value=''>-- เลือก Model --</option>";
   modelList.forEach(model => {
@@ -72,16 +72,12 @@ function showResults(model, year, system) {
   filtered.forEach(row => {
     container.innerHTML += `
       <div class="card">
-        <div class="card-title">
-          <i>📘</i> รายการ: ${row[3]}
-        </div>
-        <div class="card-detail">
-          <i>📅</i> ระยะ: ${row[5]}
-        </div>
+        <p><strong>📘 รายการ:</strong> ${row[3]}</p>
+        <p><strong>📅 ระยะ:</strong> ${row[5]}</p>
       </div>
     `;
   });
-}  // ✅ ปิด function showResults ตรงนี้!!
+}
 
 function clearDropdown(id) {
   const dropdown = document.getElementById(id);
