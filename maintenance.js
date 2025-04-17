@@ -61,19 +61,41 @@ function showResults(model, year, system) {
     row[0] === model && row[1] === year && row[2] === system
   );
 
+  renderResults(filtered);
+}
+
+function searchByKeyword() {
+  const keyword = document.getElementById("keywordSearch").value.trim().toLowerCase();
+  if (!keyword) return;
+
+  const matches = rawData.filter(row =>
+    row[3]?.toLowerCase().includes(keyword)
+  );
+
+  renderResults(matches, true);
+}
+
+function renderResults(data, showModelInfo = false) {
   const container = document.getElementById("results");
   container.innerHTML = "";
 
-  if (filtered.length === 0) {
-    container.innerHTML = "<p>❌ ไม่พบข้อมูล</p>";
+  if (data.length === 0) {
+    container.innerHTML = "<p style='color:red;'>❌ ไม่พบข้อมูล</p>";
     return;
   }
 
-  filtered.forEach(row => {
+  data.forEach(row => {
+    const title = row[3] || "ไม่พบชื่อรายการ";
+    const period = row[5] || "-";
+    const model = row[0];
+    const year = row[1];
+    const system = row[2];
+
     container.innerHTML += `
       <div class="card">
-        <p style="font-size: 20px; font-weight: bold; color: darkblue;">📘 ${row[3]}</p>
-        <p style="font-size: 16px;"><strong>${row[5]}</strong></p>
+        <div class="card-title">📘 ${title}</div>
+        <div class="card-meta">📅 ระยะ: ${period}</div>
+        ${showModelInfo ? `<div class="card-meta">🚗 รุ่น: ${model} | ปี: ${year} | ระบบ: ${system}</div>` : ""}
       </div>
     `;
   });
