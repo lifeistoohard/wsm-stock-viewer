@@ -1,8 +1,9 @@
 const SHEET_ID = "19pJJpiDKatYgUmO_43SUyECxqTYaqfhwcQwYiuxn-d8";
 const API_KEY = "AIzaSyAki5uoqv3JpG7sqZ7crpaALomcUxlD72k";
-const RANGE = "Stock!A2:H"; // แถว A-H: รวมข้อมูลทั้งหมด
+const RANGE = "Stock!A2:H";
 
 let rawData = [];
+let currentModel = ""; // เพิ่มตัวแปรไว้จำค่า model ที่เลือก
 
 async function loadData() {
   const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}?key=${API_KEY}`;
@@ -10,7 +11,6 @@ async function loadData() {
   const data = await res.json();
   rawData = data.values;
 
-  // ดึง unique model
   const models = [...new Set(rawData.map(row => row[4]).filter(Boolean))].sort();
   const modelDropdown = document.getElementById("modelSelect");
   modelDropdown.innerHTML = "<option value=''>-- เลือกรุ่นรถ --</option>";
@@ -19,9 +19,9 @@ async function loadData() {
   });
 
   modelDropdown.onchange = () => {
-    const selectedModel = modelDropdown.value;
-    populateSystemDropdown(selectedModel);
-    document.getElementById("results").innerHTML = ""; // clear old results
+    currentModel = modelDropdown.value;
+    populateSystemDropdown(currentModel);
+    document.getElementById("results").innerHTML = "";
   };
 }
 
@@ -37,7 +37,7 @@ function populateSystemDropdown(model) {
 
   systemDropdown.onchange = () => {
     const selectedSystem = systemDropdown.value;
-    showResults(model, selectedSystem);
+    showResults(currentModel, selectedSystem); // ✅ ส่ง model ปัจจุบันเข้าฟังก์ชัน
   };
 }
 
