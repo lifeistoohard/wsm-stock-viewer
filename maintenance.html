@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Maintenance Viewer</title>
   <style>
     body {
@@ -11,14 +11,20 @@
       max-width: 800px;
       margin: auto;
     }
-    select, input[type="text"] {
+
+    select, input {
       font-size: 16px;
       padding: 8px 12px;
-      width: 200px;
-      margin: 0 8px 16px 0;
+      margin-bottom: 12px;
       border-radius: 6px;
       border: 1px solid #ccc;
+      width: 220px;
     }
+
+    #results {
+      margin-top: 20px;
+    }
+
     .card {
       background: white;
       padding: 16px 24px;
@@ -27,37 +33,49 @@
       margin-bottom: 16px;
       border-left: 6px solid #1976d2;
     }
+
     .card-title {
       font-size: 20px;
       font-weight: bold;
-      color: darkblue;
-      margin-bottom: 8px;
+      color: #0d47a1;
     }
-    .card-meta {
-      font-size: 16px;
-      color: #333;
+
+    .suggestions {
+      background: #fff;
+      border: 1px solid #ccc;
+      max-height: 150px;
+      overflow-y: auto;
+      margin-top: -10px;
+      position: absolute;
+      width: 220px;
+      z-index: 10;
+    }
+
+    .suggestions div {
+      padding: 6px;
+      cursor: pointer;
+    }
+
+    .suggestions div:hover {
+      background-color: #e0e0e0;
     }
   </style>
 </head>
 <body>
   <h1>🔧 ค้นหารายการบำรุงรักษา</h1>
+  
+  <!-- Dropdowns -->
+  <select id="model"><option>Loading...</option></select>
+  <select id="modelYear"><option>เลือกรุ่นปี</option></select>
+  <select id="system"><option>เลือกระบบ</option></select>
 
-  <div>
-    <select id="model"><option>Loading...</option></select>
-    <select id="modelYear"><option>เลือกรุ่นปี</option></select>
-    <select id="system"><option>เลือกระบบ</option></select>
-  </div>
-
-  <div>
-    <input type="text" id="keywordSearch" placeholder="🔍 ค้นหาด้วยคำ เช่น น้ำมันเกียร์" />
-    <button onclick="searchByKeyword()">ค้นหา</button>
+  <!-- 🔍 Keyword Search -->
+  <div style="position: relative;">
+    <input type="text" id="keyword" placeholder="พิมพ์คำ เช่น น้ำมันเครื่อง..." oninput="suggestKeyword()" />
+    <div id="suggestions" class="suggestions"></div>
   </div>
 
   <div id="results"></div>
-
-  <p style="text-align:center; color: #888; margin-top: 2rem;">
-    Created by <strong>NA</strong> | <a href="index.html">กลับหน้าหลัก</a>
-  </p>
 
   <script src="maintenance.js"></script>
 </body>
