@@ -61,41 +61,19 @@ function showResults(model, year, system) {
     row[0] === model && row[1] === year && row[2] === system
   );
 
-  renderResults(filtered);
-}
-
-function searchByKeyword() {
-  const keyword = document.getElementById("keywordSearch").value.trim().toLowerCase();
-  if (!keyword) return;
-
-  const matches = rawData.filter(row =>
-    row[3]?.toLowerCase().includes(keyword)
-  );
-
-  renderResults(matches, true);
-}
-
-function renderResults(data, showModelInfo = false) {
   const container = document.getElementById("results");
   container.innerHTML = "";
 
-  if (data.length === 0) {
-    container.innerHTML = "<p style='color:red;'>❌ ไม่พบข้อมูล</p>";
+  if (filtered.length === 0) {
+    container.innerHTML = "<p>❌ ไม่พบข้อมูล</p>";
     return;
   }
 
-  data.forEach(row => {
-    const title = row[3] || "ไม่พบชื่อรายการ";
-    const period = row[5] || "-";
-    const model = row[0];
-    const year = row[1];
-    const system = row[2];
-
+  filtered.forEach(row => {
     container.innerHTML += `
       <div class="card">
-        <div class="card-title">📘 ${title}</div>
-        <div class="card-meta">📅 ระยะ: ${period}</div>
-        ${showModelInfo ? `<div class="card-meta">🚗 รุ่น: ${model} | ปี: ${year} | ระบบ: ${system}</div>` : ""}
+        <p class="card-title">📘 ${row[3]}</p>
+        <p>⏱️ ${row[5]}</p>
       </div>
     `;
   });
@@ -109,3 +87,25 @@ function clearDropdown(id) {
 function clearResults() {
   document.getElementById("results").innerHTML = "";
 }
+
+function suggestKeyword() {
+  const keyword = document.getElementById("keyword").value.trim().toLowerCase();
+  const suggestBox = document.getElementById("suggestions");
+  suggestBox.innerHTML = "";
+
+  if (keyword.length < 2) return;
+
+  const matches = rawData.filter(row => row[3].toLowerCase().includes(keyword));
+  const unique = [...new Set(matches.map(row => row[3]))].slice(0, 10);
+
+  unique.forEach(item => {
+    const div = document.createElement("div");
+    div.textContent = item;
+    div.onclick = () => searchByKeyword(item);
+    suggestBox.appendChild(div);
+  });
+}
+
+function searchByKeyword(keyword) {
+  document.getElementById("keyword").value = keyword;
+  document.getElementById("suggestions").innerHTML = "";
