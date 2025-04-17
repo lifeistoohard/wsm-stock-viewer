@@ -1,28 +1,29 @@
 <!DOCTYPE html>
-<html>
+<html lang="th">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Maintenance Viewer</title>
   <style>
     body {
       font-family: sans-serif;
-      background: #f2f2f2;
       padding: 2rem;
+      background-color: #f4f4f4;
       max-width: 800px;
       margin: auto;
     }
     h1 {
       font-size: 24px;
-      margin-bottom: 20px;
+      text-align: center;
     }
     select, input {
-      margin: 5px;
-      padding: 8px;
       font-size: 16px;
+      padding: 8px;
+      margin: 8px 4px;
     }
     #results {
-      margin-top: 20px;
       background: white;
+      margin-top: 20px;
       padding: 16px;
       border-radius: 10px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
@@ -30,30 +31,29 @@
   </style>
 </head>
 <body>
-  <h1>🛠️ ค้นหารายการ Maintenance</h1>
 
-  <div>
-    <label>🚗 Model:</label>
-    <select id="modelDropdown"></select>
+  <h1>🛠️ Maintenance Search</h1>
 
-    <label>📅 Model Year:</label>
-    <select id="yearDropdown"></select>
+  <label for="model">Model:</label>
+  <select id="model"></select>
 
-    <label>⚙️ System:</label>
-    <select id="systemDropdown"></select>
+  <label for="modelYear">Model Year:</label>
+  <select id="modelYear"></select>
 
-    <label>📄 List:</label>
-    <select id="listDropdown"></select>
-  </div>
+  <label for="system">System:</label>
+  <select id="system"></select>
 
-  <div style="margin-top: 20px;">
-    🔍 ค้นหาชื่อรายการ:
-    <input type="text" id="searchBox" placeholder="พิมพ์ชื่อรายการเช่น น้ำมันเครื่อง" />
-    <button onclick="filterByText()">ค้นหา</button>
-  </div>
+  <label for="list">List:</label>
+  <select id="list"></select>
+
+  <br>
+
+  <label for="search">🔍 หรือพิมพ์ชื่อรายการ:</label>
+  <input type="text" id="search" placeholder="กรอกรายการเช่น น้ำมันเครื่อง" />
 
   <div id="results"></div>
 
-  <script src="maintenance.js"></script>
+  <!-- ✅ โหลดสคริปต์แบบ defer เพื่อให้ DOM โหลดเสร็จก่อน -->
+  <script src="maintenance.js" defer></script>
 </body>
 </html>
