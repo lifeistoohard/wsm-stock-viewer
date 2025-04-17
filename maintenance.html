@@ -1,1 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Maintenance Viewer</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f2f2f2;
+      padding: 2rem;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+    select, input {
+      margin: 5px;
+      padding: 8px;
+      font-size: 16px;
+    }
+    #results {
+      margin-top: 20px;
+      background: white;
+      padding: 16px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+  <h1>🛠️ ค้นหารายการ Maintenance</h1>
 
+  <div>
+    <label>🚗 Model:</label>
+    <select id="modelDropdown"></select>
+
+    <label>📅 Model Year:</label>
+    <select id="yearDropdown"></select>
+
+    <label>⚙️ System:</label>
+    <select id="systemDropdown"></select>
+
+    <label>📄 List:</label>
+    <select id="listDropdown"></select>
+  </div>
+
+  <div style="margin-top: 20px;">
+    🔍 ค้นหาชื่อรายการ:
+    <input type="text" id="searchBox" placeholder="พิมพ์ชื่อรายการเช่น น้ำมันเครื่อง" />
+    <button onclick="filterByText()">ค้นหา</button>
+  </div>
+
+  <div id="results"></div>
+
+  <script src="maintenance.js"></script>
+</body>
+</html>
