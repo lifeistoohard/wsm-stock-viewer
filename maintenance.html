@@ -8,77 +8,119 @@
       font-family: sans-serif;
       background: #f2f2f2;
       padding: 2rem;
-      max-width: 900px;
+      max-width: 1000px;
       margin: auto;
     }
+
     h1 {
       font-size: 24px;
-      margin-bottom: 16px;
+      margin-bottom: 20px;
     }
-    select, input {
+
+    .dropdowns, .searchbox {
+      margin-bottom: 20px;
+    }
+
+    select, input[type="text"] {
       font-size: 16px;
-      padding: 8px 12px;
-      margin: 4px 8px 12px 0;
+      padding: 10px 14px;
+      margin-right: 10px;
       border-radius: 6px;
       border: 1px solid #ccc;
+      width: 220px;
     }
+
+    button {
+      font-size: 16px;
+      padding: 10px 16px;
+      border: none;
+      background-color: #1976d2;
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
     .group-box {
       background: white;
-      border-left: 5px solid #1976d2;
       border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 20px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      padding: 16px 24px;
+      margin-bottom: 24px;
     }
+
     .group-title {
+      font-size: 20px;
       font-weight: bold;
-      font-size: 18px;
-      color: #0d47a1;
-      margin-bottom: 10px;
+      margin-bottom: 16px;
     }
-    .result-item {
-      padding: 4px 0;
+
+    .group-title span {
+      color: red;
+      font-size: 18px;
+      font-weight: normal;
+      margin-left: 8px;
+    }
+
+    .item {
+      padding: 6px 0;
       border-bottom: 1px solid #eee;
     }
-    .result-item:last-child {
+
+    .item:last-child {
       border-bottom: none;
     }
+
+    .item-name {
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    .item-period {
+      font-size: 15px;
+      color: #555;
+    }
+
     .credit {
+      margin-top: 40px;
       text-align: center;
       font-size: 14px;
       color: #888;
-      margin-top: 40px;
     }
-    .button-link {
-      display: block;
-      width: fit-content;
-      margin: 20px auto;
-      padding: 8px 16px;
-      background-color: #1976d2;
+
+    .link-button {
+      display: inline-block;
+      margin-top: 16px;
+      padding: 10px 18px;
+      background: #1976d2;
       color: white;
-      text-decoration: none;
       border-radius: 6px;
+      text-decoration: none;
     }
   </style>
 </head>
 <body>
+  <h1>🛠️ ค้นหารายการบำรุงรักษา</h1>
 
-<h1>🛠️ ค้นหารายการบำรุงรักษา</h1>
+  <div class="dropdowns">
+    <select id="model"><option>Loading...</option></select>
+    <select id="modelYear"><option>เลือกรุ่นปี</option></select>
+    <select id="system"><option>เลือกระบบ</option></select>
+  </div>
 
-<select id="model"><option>Loading...</option></select>
-<select id="modelYear"><option>เลือกรุ่นปี</option></select>
-<select id="system"><option>เลือกระบบ</option></select>
+  <div class="searchbox">
+    <input type="text" id="keyword" placeholder="🔎 พิมพ์คำ เช่น น้ำมันเครื่อง..." />
+    <button onclick="searchKeyword()">ค้นหา</button>
+  </div>
 
-<br><br>
-<input type="text" id="keyword" placeholder="🔍 พิมพ์ชื่อรายการบางส่วน..." oninput="handleSuggest()" list="suggestions" />
-<datalist id="suggestions"></datalist>
-<button onclick="searchByKeyword()">ค้นหา</button>
+  <div id="results"></div>
 
-<div id="results"></div>
+  <div class="credit">
+    Created by <strong>NA</strong><br>
+    <a class="link-button" href="https://lifeistoohard.github.io/wsm-stock-viewer/" target="_blank">
+      🔗 ไปยังหน้า WSM Stock
+    </a>
+  </div>
 
-<a href="https://lifeistoohard.github.io/wsm-stock-viewer" class="button-link">↩️ กลับไปยังหน้า WSM Stock</a>
-<p class="credit">Created by <strong>NA</strong></p>
-
-<script src="maintenance.js"></script>
+  <script src="maintenance.js"></script>
 </body>
 </html>
