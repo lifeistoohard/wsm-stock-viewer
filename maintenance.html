@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Maintenance Viewer</title>
   <style>
     body {
@@ -11,86 +11,74 @@
       max-width: 900px;
       margin: auto;
     }
-
     h1 {
       font-size: 24px;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
     }
-
-    select, input[type="text"] {
+    select, input {
       font-size: 16px;
       padding: 8px 12px;
-      width: 240px;
-      margin: 8px 12px 8px 0;
+      margin: 4px 8px 12px 0;
       border-radius: 6px;
       border: 1px solid #ccc;
     }
-
-    .card-group {
-      background: #ffffff;
-      margin-bottom: 24px;
-      padding: 16px 20px;
+    .group-box {
+      background: white;
+      border-left: 5px solid #1976d2;
       border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 20px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      border-left: 6px solid #1976d2;
     }
-
-    .card-header {
+    .group-title {
       font-weight: bold;
       font-size: 18px;
-      margin-bottom: 10px;
       color: #0d47a1;
+      margin-bottom: 10px;
     }
-
-    .card-item {
-      margin-left: 16px;
-      margin-bottom: 6px;
-      font-size: 16px;
+    .result-item {
+      padding: 4px 0;
+      border-bottom: 1px solid #eee;
     }
-
+    .result-item:last-child {
+      border-bottom: none;
+    }
     .credit {
       text-align: center;
       font-size: 14px;
       color: #888;
       margin-top: 40px;
     }
-
-    .link-button {
-      display: inline-block;
-      margin-top: 12px;
-      padding: 8px 14px;
+    .button-link {
+      display: block;
+      width: fit-content;
+      margin: 20px auto;
+      padding: 8px 16px;
       background-color: #1976d2;
       color: white;
-      border: none;
-      border-radius: 6px;
       text-decoration: none;
-      font-size: 14px;
+      border-radius: 6px;
     }
   </style>
 </head>
 <body>
-  <h1>🛠️ ค้นหารายการบำรุงรักษา</h1>
 
-  <!-- Dropdown filter -->
-  <div>
-    <select id="model"><option value="">-- เลือก Model --</option></select>
-    <select id="modelYear"><option value="">-- เลือก Model Year --</option></select>
-    <select id="system"><option value="">-- เลือก System --</option></select>
-  </div>
+<h1>🛠️ ค้นหารายการบำรุงรักษา</h1>
 
-  <!-- Keyword search -->
-  <div>
-    <input type="text" id="keywordInput" placeholder="🔍 พิมพ์คีย์เวิร์ด เช่น น้ำมันเครื่อง..." />
-    <button onclick="searchByKeyword()">ค้นหา</button>
-  </div>
+<select id="model"><option>Loading...</option></select>
+<select id="modelYear"><option>เลือกรุ่นปี</option></select>
+<select id="system"><option>เลือกระบบ</option></select>
 
-  <div id="results"></div>
+<br><br>
+<input type="text" id="keyword" placeholder="🔍 พิมพ์ชื่อรายการบางส่วน..." oninput="handleSuggest()" list="suggestions" />
+<datalist id="suggestions"></datalist>
+<button onclick="searchByKeyword()">ค้นหา</button>
 
-  <p class="credit">
-    Created by <strong>NA</strong><br>
-    <a class="link-button" href="https://lifeistoohard.github.io/wsm-stock-viewer/">🔗 กลับหน้า WSM Stock</a>
-  </p>
+<div id="results"></div>
 
-  <script src="maintenance.js"></script>
+<a href="https://lifeistoohard.github.io/wsm-stock-viewer" class="button-link">↩️ กลับไปยังหน้า WSM Stock</a>
+<p class="credit">Created by <strong>NA</strong></p>
+
+<script src="maintenance.js"></script>
 </body>
 </html>
