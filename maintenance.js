@@ -120,7 +120,7 @@ function displayGroups(rows) {
       d.className = "item";
       d.innerHTML = `
         <p class="item-title">📘 ${r[3]}</p>
-        <p class="item-period">📅 ${r[5] || '-'} </p>
+        <p class="item-period">⏳ ${r[5] || '-'} </p>
       `;
       g.appendChild(d);
     });
