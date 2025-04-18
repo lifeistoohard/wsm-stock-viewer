@@ -1,5 +1,3 @@
-// 🔁 V2.1: Group search results by Model + Model Year
-
 const SHEET_ID = "19pJJpiDKatYgUmO_43SUyECxqTYaqfhwcQwYiuxn-d8";
 const API_KEY = "AIzaSyAki5uoqv3JpG7sqZ7crpaALomcUxlD72k";
 const RANGE = "Maintenance!B2:G";
@@ -11,6 +9,7 @@ fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}
   .then(data => {
     rawData = data.values;
     populateModelDropdown();
+    enableKeywordSearch(); // <-- สำคัญ
   });
 
 function populateModelDropdown() {
@@ -75,7 +74,7 @@ function showResults(model, year, system) {
     container.innerHTML += `
       <div class="card">
         <p><strong style="color: darkblue; font-size: 18px;">📘 ${row[3]}</strong></p>
-        <p>${row[5]}</p>
+        <p><strong>${row[5]}</strong></p>
       </div>
     `;
   });
@@ -90,56 +89,65 @@ function clearResults() {
   document.getElementById("results").innerHTML = "";
 }
 
-// 📌 New: Search by keyword and group by Model + Year
-function searchKeyword() {
-  const keyword = document.getElementById("keywordInput").value.trim().toLowerCase();
+// 🔍 Keyword Search Grouped by Model + Model Year
+function enableKeywordSearch() {
+  const input = document.getElementById("keywordInput");
+  const button = document.getElementById("keywordSearch");
+
+  button.addEventListener("click", () => {
+    const keyword = input.value.trim();
+    searchByKeyword(keyword);
+  });
+
+  input.addEventListener("keyup", (e) => {
+    if (e.key === "Enter") {
+      const keyword = input.value.trim();
+      searchByKeyword(keyword);
+    }
+  });
+}
+
+function searchByKeyword(keyword) {
   const container = document.getElementById("results");
   container.innerHTML = "";
 
-  if (!keyword) return;
-
-  // Group by Model+Year
-  const grouped = {};
-
-  rawData.forEach(row => {
-    const list = row[3]?.toLowerCase() || "";
-    if (list.includes(keyword)) {
-      const groupKey = `${row[0]} | ${row[1]}`;
-      if (!grouped[groupKey]) grouped[groupKey] = [];
-      grouped[groupKey].push(row);
-    }
-  });
-
-  const groupKeys = Object.keys(grouped);
-  if (groupKeys.length === 0) {
-    container.innerHTML = "<p style='color:red;'>❌ ไม่พบรายการที่ค้นหา</p>";
+  if (!keyword) {
+    container.innerHTML = "<p>❌ กรุณากรอกคำค้นหา</p>";
     return;
   }
 
-  groupKeys.forEach(group => {
-    const items = grouped[group];
-    const groupDiv = document.createElement("div");
-    groupDiv.style.marginBottom = "32px";
-    groupDiv.style.padding = "16px";
-    groupDiv.style.borderRadius = "12px";
-    groupDiv.style.background = "#fff";
-    groupDiv.style.boxShadow = "0 0 10px rgba(0,0,0,0.1)";
+  const filtered = rawData.filter(row => row[3].includes(keyword));
 
-    const title = document.createElement("h3");
-    title.textContent = `🚗 ${group}`;
-    title.style.marginBottom = "16px";
-    groupDiv.appendChild(title);
+  if (filtered.length === 0) {
+    container.innerHTML = "<p>❌ ไม่พบข้อมูลที่เกี่ยวข้อง</p>";
+    return;
+  }
 
-    items.forEach(row => {
-      const card = document.createElement("div");
-      card.classList.add("card");
-      card.innerHTML = `
-        <p class="card-title"><strong style="color: darkblue;">📘 ${row[3]}</strong></p>
-        <p class="card-detail"><i>📅</i> ระยะ: ${row[5]}</p>
+  // ✅ จัดกลุ่มตาม Model + Year
+  const grouped = {};
+
+  filtered.forEach(row => {
+    const key = `${row[0]}|${row[1]}`; // Model + Year
+    if (!grouped[key]) grouped[key] = [];
+    grouped[key].push(row);
+  });
+
+  Object.entries(grouped).forEach(([key, groupRows]) => {
+    const [model, year] = key.split("|");
+    const groupBox = document.createElement("div");
+    groupBox.className = "group-box";
+    groupBox.innerHTML = `<h3>🚗 ${model} | 📅 ${year}</h3>`;
+
+    groupRows.forEach(row => {
+      const item = document.createElement("div");
+      item.className = "card";
+      item.innerHTML = `
+        <p><strong style="color: darkblue;">📘 ${row[3]}</strong></p>
+        <p><strong>ระยะ:</strong> ${row[5]}</p>
       `;
-      groupDiv.appendChild(card);
+      groupBox.appendChild(item);
     });
 
-    container.appendChild(groupDiv);
+    container.appendChild(groupBox);
   });
 }
