@@ -16,7 +16,7 @@
       margin-bottom: 16px;
     }
 
-    /* Dropdown layout (เดิม) */
+    /* Dropdown layout */
     .dropdowns select {
       font-size: 16px;
       padding: 8px 12px;
@@ -29,14 +29,15 @@
       margin-bottom: 24px;
     }
 
-    /* ช่องพิมพ์คำค้น + ปุ่ม */
+    /* ช่องพิมพ์คำค้น + autosuggest + ปุ่ม */
     .keyword-search {
       margin-bottom: 24px;
     }
     .keyword-search input[type="text"] {
       font-size: 16px;
       padding: 8px 12px;
-      width: 400px;           /* ยาวขึ้นตามขอ */
+      width: 100%;
+      max-width: 500px;   /* ยาวขึ้นตามขอ */
       border-radius: 6px;
       border: 1px solid #ccc;
     }
@@ -74,6 +75,18 @@
     .item-period {
       margin: 0 0 0 1.5em;
     }
+
+    /* เครดิตและลิงก์ */
+    .credit {
+      text-align: center;
+      font-size: 14px;
+      color: #666;
+      margin-top: 32px;
+    }
+    .credit a {
+      color: #1976d2;
+      text-decoration: none;
+    }
   </style>
 </head>
 <body>
@@ -100,6 +113,14 @@
 
   <!-- (3) ผลลัพธ์ -->
   <div id="results"></div>
+
+  <!-- เครดิต พร้อมลิงก์ไป WSM Stock Checker -->
+  <p class="credit">
+    Created by <strong>NA</strong> | 
+    <a href="https://lifeistoohard.github.io/wsm-stock-viewer/" target="_blank">
+      ไปที่ WSM Stock Checker
+    </a>
+  </p>
 
   <script src="maintenance.js"></script>
 </body>
