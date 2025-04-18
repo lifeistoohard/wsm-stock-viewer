@@ -1,153 +1,96 @@
-const SHEET_ID = "19pJJpiDKatYgUmO_43SUyECxqTYaqfhwcQwYiuxn-d8";
-const API_KEY = "AIzaSyAki5uoqv3JpG7sqZ7crpaALomcUxlD72k";
-const RANGE = "Maintenance!B2:G";
-
-let rawData = [];
-
-fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}?key=${API_KEY}`)
-  .then(res => res.json())
-  .then(data => {
-    rawData = data.values;
-    populateModelDropdown();
-    enableKeywordSearch(); // <-- สำคัญ
-  });
-
-function populateModelDropdown() {
-  const modelSet = new Set(rawData.map(row => row[0]));
-  const modelList = Array.from(modelSet).sort();
-  const modelSelect = document.getElementById("model");
-  modelSelect.innerHTML = "<option value=''>-- เลือก Model --</option>";
-  modelList.forEach(model => {
-    modelSelect.innerHTML += `<option value="${model}">${model}</option>`;
-  });
-
-  modelSelect.onchange = () => {
-    populateModelYearDropdown(modelSelect.value);
-    clearDropdown("system");
-    clearResults();
-  };
-}
-
-function populateModelYearDropdown(selectedModel) {
-  const filtered = rawData.filter(row => row[0] === selectedModel);
-  const yearSet = new Set(filtered.map(row => row[1]));
-  const yearSelect = document.getElementById("modelYear");
-  yearSelect.innerHTML = "<option value=''>-- เลือก Model Year --</option>";
-  yearSet.forEach(year => {
-    yearSelect.innerHTML += `<option value="${year}">${year}</option>`;
-  });
-
-  yearSelect.onchange = () => {
-    populateSystemDropdown(selectedModel, yearSelect.value);
-    clearResults();
-  };
-}
-
-function populateSystemDropdown(selectedModel, selectedYear) {
-  const filtered = rawData.filter(row => row[0] === selectedModel && row[1] === selectedYear);
-  const systemSet = new Set(filtered.map(row => row[2]));
-  const systemSelect = document.getElementById("system");
-  systemSelect.innerHTML = "<option value=''>-- เลือก System --</option>";
-  systemSet.forEach(sys => {
-    systemSelect.innerHTML += `<option value="${sys}">${sys}</option>`;
-  });
-
-  systemSelect.onchange = () => {
-    showResults(selectedModel, selectedYear, systemSelect.value);
-  };
-}
-
-function showResults(model, year, system) {
-  const filtered = rawData.filter(row =>
-    row[0] === model && row[1] === year && row[2] === system
-  );
-
-  const container = document.getElementById("results");
-  container.innerHTML = "";
-
-  if (filtered.length === 0) {
-    container.innerHTML = "<p>❌ ไม่พบข้อมูล</p>";
-    return;
-  }
-
-  filtered.forEach(row => {
-    container.innerHTML += `
-      <div class="card">
-        <p><strong style="color: darkblue; font-size: 18px;">📘 ${row[3]}</strong></p>
-        <p><strong>${row[5]}</strong></p>
-      </div>
-    `;
-  });
-}
-
-function clearDropdown(id) {
-  const dropdown = document.getElementById(id);
-  dropdown.innerHTML = `<option value=''>-- เลือก --</option>`;
-}
-
-function clearResults() {
-  document.getElementById("results").innerHTML = "";
-}
-
-// 🔍 Keyword Search Grouped by Model + Model Year
-function enableKeywordSearch() {
-  const input = document.getElementById("keywordInput");
-  const button = document.getElementById("keywordSearch");
-
-  button.addEventListener("click", () => {
-    const keyword = input.value.trim();
-    searchByKeyword(keyword);
-  });
-
-  input.addEventListener("keyup", (e) => {
-    if (e.key === "Enter") {
-      const keyword = input.value.trim();
-      searchByKeyword(keyword);
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <title>Maintenance Viewer</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f2f2f2;
+      padding: 2rem;
+      max-width: 900px;
+      margin: auto;
     }
-  });
-}
 
-function searchByKeyword(keyword) {
-  const container = document.getElementById("results");
-  container.innerHTML = "";
+    h1 {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
 
-  if (!keyword) {
-    container.innerHTML = "<p>❌ กรุณากรอกคำค้นหา</p>";
-    return;
-  }
+    select, input[type="text"] {
+      font-size: 16px;
+      padding: 8px 12px;
+      width: 240px;
+      margin: 8px 12px 8px 0;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
 
-  const filtered = rawData.filter(row => row[3].includes(keyword));
+    .card-group {
+      background: #ffffff;
+      margin-bottom: 24px;
+      padding: 16px 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      border-left: 6px solid #1976d2;
+    }
 
-  if (filtered.length === 0) {
-    container.innerHTML = "<p>❌ ไม่พบข้อมูลที่เกี่ยวข้อง</p>";
-    return;
-  }
+    .card-header {
+      font-weight: bold;
+      font-size: 18px;
+      margin-bottom: 10px;
+      color: #0d47a1;
+    }
 
-  // ✅ จัดกลุ่มตาม Model + Year
-  const grouped = {};
+    .card-item {
+      margin-left: 16px;
+      margin-bottom: 6px;
+      font-size: 16px;
+    }
 
-  filtered.forEach(row => {
-    const key = `${row[0]}|${row[1]}`; // Model + Year
-    if (!grouped[key]) grouped[key] = [];
-    grouped[key].push(row);
-  });
+    .credit {
+      text-align: center;
+      font-size: 14px;
+      color: #888;
+      margin-top: 40px;
+    }
 
-  Object.entries(grouped).forEach(([key, groupRows]) => {
-    const [model, year] = key.split("|");
-    const groupBox = document.createElement("div");
-    groupBox.className = "group-box";
-    groupBox.innerHTML = `<h3>🚗 ${model} | 📅 ${year}</h3>`;
+    .link-button {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 8px 14px;
+      background-color: #1976d2;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🛠️ ค้นหารายการบำรุงรักษา</h1>
 
-    groupRows.forEach(row => {
-      const item = document.createElement("div");
-      item.className = "card";
-      item.innerHTML = `
-        <p><strong style="color: darkblue;">📘 ${row[3]}</strong></p>
-        <p><strong>ระยะ:</strong> ${row[5]}</p>
-      `;
-      groupBox.appendChild(item);
-    });
+  <!-- Dropdown filter -->
+  <div>
+    <select id="model"><option value="">-- เลือก Model --</option></select>
+    <select id="modelYear"><option value="">-- เลือก Model Year --</option></select>
+    <select id="system"><option value="">-- เลือก System --</option></select>
+  </div>
 
-    container.appendChild(groupBox);
-  });
-}
+  <!-- Keyword search -->
+  <div>
+    <input type="text" id="keywordInput" placeholder="🔍 พิมพ์คีย์เวิร์ด เช่น น้ำมันเครื่อง..." />
+    <button onclick="searchByKeyword()">ค้นหา</button>
+  </div>
+
+  <div id="results"></div>
+
+  <p class="credit">
+    Created by <strong>NA</strong><br>
+    <a class="link-button" href="https://lifeistoohard.github.io/wsm-stock-viewer/">🔗 กลับหน้า WSM Stock</a>
+  </p>
+
+  <script src="maintenance.js"></script>
+</body>
+</html>
