@@ -1,3 +1,5 @@
+// 🔁 V2.1: Group search results by Model + Model Year
+
 const SHEET_ID = "19pJJpiDKatYgUmO_43SUyECxqTYaqfhwcQwYiuxn-d8";
 const API_KEY = "AIzaSyAki5uoqv3JpG7sqZ7crpaALomcUxlD72k";
 const RANGE = "Maintenance!B2:G";
@@ -72,62 +74,72 @@ function showResults(model, year, system) {
   filtered.forEach(row => {
     container.innerHTML += `
       <div class="card">
-        <div class="card-title">📘 ${row[3]}</div>
-        <div class="card-detail">📅 ${row[5]}</div>
+        <p><strong style="color: darkblue; font-size: 18px;">📘 ${row[3]}</strong></p>
+        <p>${row[5]}</p>
       </div>
     `;
   });
 }
 
 function clearDropdown(id) {
-  document.getElementById(id).innerHTML = `<option value=''>-- เลือก --</option>`;
+  const dropdown = document.getElementById(id);
+  dropdown.innerHTML = `<option value=''>-- เลือก --</option>`;
 }
 
 function clearResults() {
   document.getElementById("results").innerHTML = "";
 }
 
-// 🔍 Keyword Search (Suggestion)
-function showSuggestions() {
-  const input = document.getElementById("keywordInput").value.toLowerCase();
-  const suggestionBox = document.getElementById("suggestions");
-  suggestionBox.innerHTML = "";
+// 📌 New: Search by keyword and group by Model + Year
+function searchKeyword() {
+  const keyword = document.getElementById("keywordInput").value.trim().toLowerCase();
+  const container = document.getElementById("results");
+  container.innerHTML = "";
 
-  if (!input) return;
+  if (!keyword) return;
 
-  const suggestions = [...new Set(rawData.map(row => row[3]).filter(name => name.toLowerCase().includes(input)))];
+  // Group by Model+Year
+  const grouped = {};
 
-  suggestions.slice(0, 5).forEach(item => {
-    const div = document.createElement("div");
-    div.className = "suggestion";
-    div.textContent = item;
-    div.onclick = () => {
-      document.getElementById("keywordInput").value = item;
-      suggestionBox.innerHTML = "";
-      searchByKeyword();
-    };
-    suggestionBox.appendChild(div);
+  rawData.forEach(row => {
+    const list = row[3]?.toLowerCase() || "";
+    if (list.includes(keyword)) {
+      const groupKey = `${row[0]} | ${row[1]}`;
+      if (!grouped[groupKey]) grouped[groupKey] = [];
+      grouped[groupKey].push(row);
+    }
   });
-}
 
-function searchByKeyword() {
-  const input = document.getElementById("keywordInput").value.toLowerCase();
-  const resultsDiv = document.getElementById("keywordResults");
-  const matched = rawData.filter(row => row[3].toLowerCase().includes(input));
-  resultsDiv.innerHTML = "";
-
-  if (matched.length === 0) {
-    resultsDiv.innerHTML = "<p style='color:red;'>❌ ไม่พบรายการที่เกี่ยวข้อง</p>";
+  const groupKeys = Object.keys(grouped);
+  if (groupKeys.length === 0) {
+    container.innerHTML = "<p style='color:red;'>❌ ไม่พบรายการที่ค้นหา</p>";
     return;
   }
 
-  matched.forEach(row => {
-    resultsDiv.innerHTML += `
-      <div class="card">
-        <div class="card-title">📘 ${row[3]}</div>
-        <div class="card-detail">🚗 Model: ${row[0]} | 📅 รุ่นปี: ${row[1]}</div>
-        <div class="card-detail">📅 ระยะ: ${row[5]}</div>
-      </div>
-    `;
+  groupKeys.forEach(group => {
+    const items = grouped[group];
+    const groupDiv = document.createElement("div");
+    groupDiv.style.marginBottom = "32px";
+    groupDiv.style.padding = "16px";
+    groupDiv.style.borderRadius = "12px";
+    groupDiv.style.background = "#fff";
+    groupDiv.style.boxShadow = "0 0 10px rgba(0,0,0,0.1)";
+
+    const title = document.createElement("h3");
+    title.textContent = `🚗 ${group}`;
+    title.style.marginBottom = "16px";
+    groupDiv.appendChild(title);
+
+    items.forEach(row => {
+      const card = document.createElement("div");
+      card.classList.add("card");
+      card.innerHTML = `
+        <p class="card-title"><strong style="color: darkblue;">📘 ${row[3]}</strong></p>
+        <p class="card-detail"><i>📅</i> ระยะ: ${row[5]}</p>
+      `;
+      groupDiv.appendChild(card);
+    });
+
+    container.appendChild(groupDiv);
   });
 }
