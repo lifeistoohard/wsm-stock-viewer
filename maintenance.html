@@ -8,110 +8,118 @@
       font-family: sans-serif;
       background: #f2f2f2;
       padding: 2rem;
-      max-width: 900px;
+      max-width: 1000px;
       margin: auto;
     }
 
     h1 {
-      font-size: 26px;
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+
+    .dropdowns, .searchbox {
       margin-bottom: 20px;
     }
 
     select, input[type="text"] {
       font-size: 16px;
-      padding: 10px;
-      width: 300px;
-      margin: 6px;
+      padding: 10px 14px;
+      margin-right: 10px;
       border-radius: 6px;
       border: 1px solid #ccc;
+      width: 220px;
+    }
+
+    button {
+      font-size: 16px;
+      padding: 10px 16px;
+      border: none;
+      background-color: #1976d2;
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .group-box {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      padding: 16px 24px;
+      margin-bottom: 24px;
     }
 
     .group-title {
       font-size: 20px;
       font-weight: bold;
-      background-color: #e3f2fd;
-      padding: 10px;
-      margin-top: 20px;
-      border-radius: 10px 10px 0 0;
-      border-left: 6px solid #1976d2;
+      margin-bottom: 16px;
     }
 
-    .model-year {
+    .group-title span {
       color: red;
-      margin-left: 10px;
+      font-size: 18px;
       font-weight: normal;
-    }
-
-    .result-card {
-      background: white;
-      padding: 12px 18px;
-      border-radius: 0 0 12px 12px;
-      border-bottom: 1px solid #ddd;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      margin-left: 8px;
     }
 
     .item {
-      font-size: 16px;
+      padding: 6px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .item:last-child {
+      border-bottom: none;
+    }
+
+    .item-name {
       font-weight: bold;
-      margin-bottom: 4px;
+      font-size: 16px;
     }
 
-    .period {
-      font-size: 14px;
-      color: #333;
-      margin-bottom: 12px;
-    }
-
-    #results {
-      margin-top: 30px;
+    .item-period {
+      font-size: 15px;
+      color: #555;
     }
 
     .credit {
       margin-top: 40px;
       text-align: center;
       font-size: 14px;
-      color: #777;
+      color: #888;
     }
 
-    .nav-link {
-      margin-top: 10px;
-      display: block;
-      text-align: center;
-    }
-
-    .nav-link a {
-      color: #1976d2;
+    .link-button {
+      display: inline-block;
+      margin-top: 16px;
+      padding: 10px 18px;
+      background: #1976d2;
+      color: white;
+      border-radius: 6px;
       text-decoration: none;
-      font-weight: bold;
-    }
-
-    .nav-link a:hover {
-      text-decoration: underline;
     }
   </style>
 </head>
 <body>
+  <h1>🛠️ ค้นหารายการบำรุงรักษา</h1>
 
-  <h1>🔍 ค้นหารายการบำรุงรักษา</h1>
-
-  <div>
+  <div class="dropdowns">
     <select id="model"><option>Loading...</option></select>
     <select id="modelYear"><option>เลือกรุ่นปี</option></select>
     <select id="system"><option>เลือกระบบ</option></select>
   </div>
 
-  <div>
-    <input type="text" id="keywordInput" placeholder="ค้นหาด้วยคีย์เวิร์ด เช่น น้ำมันเครื่อง" />
-    <button onclick="searchByKeyword()">ค้นหา</button>
+  <div class="searchbox">
+    <input type="text" id="keyword" placeholder="🔎 พิมพ์คำ เช่น น้ำมันเครื่อง..." />
+    <button onclick="searchKeyword()">ค้นหา</button>
   </div>
 
   <div id="results"></div>
 
-  <div class="nav-link">
-    <a href="index.html">🔁 กลับไปยังหน้า WSM Stock Viewer</a>
+  <div class="credit">
+    Created by <strong>NA</strong><br>
+    <a class="link-button" href="https://lifeistoohard.github.io/wsm-stock-viewer/" target="_blank">
+      🔗 ไปยังหน้า WSM Stock
+    </a>
   </div>
-
-  <p class="credit">Created by <strong>NA</strong></p>
 
   <script src="maintenance.js"></script>
 </body>
