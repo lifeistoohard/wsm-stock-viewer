@@ -1,170 +1,133 @@
+// — กำหนดข้อมูล Google Sheets API
 const SHEET_ID = "19pJJpiDKatYgUmO_43SUyECxqTYaqfhwcQwYiuxn-d8";
-const API_KEY = "AIzaSyAki5uoqv3JpG7sqZ7crpaALomcUxlD72k";
-const RANGE = "Maintenance!B2:G";
+const API_KEY  = "AIzaSyAki5uoqv3JpG7sqZ7crpaALomcUxlD72k";
+const RANGE    = "Maintenance!B2:G";
 
 let rawData = [];
 
-fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}?key=${API_KEY}`)
-  .then(res => res.json())
-  .then(data => {
-    rawData = data.values;
-    populateModelDropdown();
-    setupKeywordSearch();
-  });
+// โหลดข้อมูลจาก Google Sheets
+async function loadData() {
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}?key=${API_KEY}`;
+  const res = await fetch(url);
+  const obj = await res.json();
+  rawData = obj.values || [];
 
-// ✅ สร้าง dropdown Model
-function populateModelDropdown() {
-  const modelSet = new Set(rawData.map(row => row[0]));
-  const modelList = Array.from(modelSet).sort();
+  populateDropdowns();
+  populateSuggestions();
+}
+
+// สร้าง dropdown แบบไดนามิก (Model → Year → System)
+function populateDropdowns() {
   const modelSelect = document.getElementById("model");
-  modelSelect.innerHTML = "<option value=''>-- เลือก Model --</option>";
-  modelList.forEach(model => {
-    modelSelect.innerHTML += `<option value="${model}">${model}</option>`;
-  });
+  const yearSelect  = document.getElementById("modelYear");
+  const sysSelect   = document.getElementById("system");
+
+  // Model
+  const models = [...new Set(rawData.map(r => r[0]).filter(v=>v))].sort();
+  modelSelect.innerHTML = `<option value=''>-- เลือก Model --</option>`;
+  models.forEach(m => modelSelect.innerHTML += `<option>${m}</option>`);
 
   modelSelect.onchange = () => {
-    populateModelYearDropdown(modelSelect.value);
-    clearDropdown("system");
-    clearResults();
+    // Model Year
+    const m = modelSelect.value;
+    const years = [...new Set(
+      rawData.filter(r=>r[0]===m).map(r=>r[1])
+    )].sort();
+    yearSelect.innerHTML = `<option value=''>-- เลือกปีรุ่น --</option>`;
+    years.forEach(y => yearSelect.innerHTML += `<option>${y}</option>`);
+    sysSelect.innerHTML = `<option value=''>-- เลือกระบบ --</option>`;
+    document.getElementById("results").innerHTML = "";
   };
-}
-
-// ✅ สร้าง dropdown Model Year
-function populateModelYearDropdown(selectedModel) {
-  const filtered = rawData.filter(row => row[0] === selectedModel);
-  const yearSet = new Set(filtered.map(row => row[1]));
-  const yearSelect = document.getElementById("modelYear");
-  yearSelect.innerHTML = "<option value=''>-- เลือก Model Year --</option>";
-  yearSet.forEach(year => {
-    yearSelect.innerHTML += `<option value="${year}">${year}</option>`;
-  });
 
   yearSelect.onchange = () => {
-    populateSystemDropdown(selectedModel, yearSelect.value);
-    clearResults();
+    // System
+    const m = modelSelect.value;
+    const y = yearSelect.value;
+    const systems = [...new Set(
+      rawData.filter(r=>r[0]===m && r[1]===y).map(r=>r[2])
+    )].sort();
+    sysSelect.innerHTML = `<option value=''>-- เลือกระบบ --</option>`;
+    systems.forEach(s => sysSelect.innerHTML += `<option>${s}</option>`);
+    document.getElementById("results").innerHTML = "";
+  };
+
+  sysSelect.onchange = () => {
+    // แสดงผลลัพธ์เมื่อเลือกครบ 3 ตัว
+    const m = modelSelect.value, y = yearSelect.value, s = sysSelect.value;
+    if (m && y && s) {
+      displayGroups(
+        rawData.filter(r=>r[0]===m && r[1]===y && r[2]===s)
+      );
+    }
   };
 }
 
-// ✅ สร้าง dropdown System
-function populateSystemDropdown(selectedModel, selectedYear) {
-  const filtered = rawData.filter(row => row[0] === selectedModel && row[1] === selectedYear);
-  const systemSet = new Set(filtered.map(row => row[2]));
-  const systemSelect = document.getElementById("system");
-  systemSelect.innerHTML = "<option value=''>-- เลือก System --</option>";
-  systemSet.forEach(sys => {
-    systemSelect.innerHTML += `<option value="${sys}">${sys}</option>`;
+// เติมรายการสำหรับ autosuggest (จากคอลัมน์ “List” = index 3)
+function populateSuggestions() {
+  const dl = document.getElementById("suggestions");
+  const keys = [...new Set(rawData.map(r=>r[3]).filter(v=>v))];
+  keys.forEach(k => {
+    const o = document.createElement("option");
+    o.value = k;
+    dl.appendChild(o);
   });
-
-  systemSelect.onchange = () => {
-    showResults(selectedModel, selectedYear, systemSelect.value);
-  };
 }
 
-// ✅ แสดงผลลัพธ์แบบ grouped
-function showResults(model, year, system) {
-  const filtered = rawData.filter(row =>
-    row[0] === model && row[1] === year && row[2] === system
-  );
+// กด “ค้นหา” ด้วยคำ (manual + autosuggest)
+document.getElementById("searchBtn").onclick = () => {
+  const kw = document.getElementById("search").value.trim().toLowerCase();
+  if (!kw) return;
+  const filtered = rawData.filter(r=>r[3].toLowerCase().includes(kw));
+  displayGroups(filtered);
+};
 
-  const container = document.getElementById("results");
-  container.innerHTML = "";
+// ฟังก์ชันจัดกลุ่มและแสดงผล
+function displayGroups(rows) {
+  const results = document.getElementById("results");
+  results.innerHTML = "";
 
-  if (filtered.length === 0) {
-    container.innerHTML = "<p>❌ ไม่พบข้อมูล</p>";
+  if (!rows.length) {
+    results.innerHTML = `<p style="color:red;">❌ ไม่พบข้อมูล</p>`;
     return;
   }
 
-  filtered.forEach(row => {
-    const title = `<div class="card-title"><strong>${row[0]}</strong> <span style="color:red; margin-left: 8px;">${row[1]}</span></div>`;
-    const card = `
-      <div class="card">
-        ${title}
-        <p><strong>📘</strong> <strong>${row[3]}</strong></p>
-        <p><strong>📅</strong> ${row[5]}</p>
-      </div>
-    `;
-    container.innerHTML += card;
+  // สร้าง Map<"Model__Year", rows[]>
+  const groups = new Map();
+  rows.forEach(r => {
+    const key = `${r[0]}__${r[1]}`;
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(r);
   });
-}
 
-// ✅ ค้นหาด้วยคีย์เวิร์ด พร้อม autosuggest
-function setupKeywordSearch() {
-  const input = document.getElementById("keywordSearch");
-  const suggestions = document.getElementById("suggestions");
+  // วนสร้างแต่ละกลุ่ม
+  groups.forEach((items, key) => {
+    const [model, year] = key.split("__");
 
-  input.addEventListener("input", () => {
-    const keyword = input.value.toLowerCase();
-    suggestions.innerHTML = "";
+    // กล่องกรุ๊ป
+    const g = document.createElement("div");
+    g.className = "group";
 
-    if (!keyword) return;
+    // หัวกล่อง
+    const h = document.createElement("p");
+    h.className = "group-header";
+    h.innerHTML = `<strong>${model}</strong> 
+                   <span class="model-year">${year}</span>`;
+    g.appendChild(h);
 
-    const matches = [...new Set(rawData.map(row => row[3]))].filter(item =>
-      item.toLowerCase().includes(keyword)
-    );
-
-    matches.slice(0, 10).forEach(item => {
-      const div = document.createElement("div");
-      div.textContent = item;
-      div.className = "suggestion";
-      div.onclick = () => {
-        input.value = item;
-        suggestions.innerHTML = "";
-        searchByKeyword(item);
-      };
-      suggestions.appendChild(div);
+    // รายการภายในกลุ่ม
+    items.forEach(r => {
+      const d = document.createElement("div");
+      d.className = "item";
+      d.innerHTML = `
+        <p class="item-title">📘 ${r[3]}</p>
+        <p class="item-period">📅 ${r[5] || '-'} </p>
+      `;
+      g.appendChild(d);
     });
+
+    results.appendChild(g);
   });
-
-  document.getElementById("keywordSearchBtn").onclick = () => {
-    searchByKeyword(input.value.trim());
-  };
 }
 
-// ✅ แสดงผลคีย์เวิร์ดแบบ grouped
-function searchByKeyword(keyword) {
-  const container = document.getElementById("results");
-  container.innerHTML = "";
-
-  if (!keyword) return;
-
-  const filtered = rawData.filter(row =>
-    row[3].toLowerCase().includes(keyword.toLowerCase())
-  );
-
-  if (filtered.length === 0) {
-    container.innerHTML = "<p>❌ ไม่พบข้อมูลที่ตรงกับคำค้นหา</p>";
-    return;
-  }
-
-  const grouped = {};
-
-  filtered.forEach(row => {
-    const key = `${row[0]}|${row[1]}`;
-    if (!grouped[key]) grouped[key] = [];
-    grouped[key].push(row);
-  });
-
-  for (const key in grouped) {
-    const [model, year] = key.split("|");
-    const groupTitle = `<div class="card-title"><strong>${model}</strong> <span style="color:red; margin-left: 8px;">${year}</span></div>`;
-    const cardContent = grouped[key].map(row =>
-      `<p><strong>📘</strong> <strong>${row[3]}</strong></p><p><strong>📅</strong> ${row[5]}</p>`
-    ).join("");
-
-    container.innerHTML += `
-      <div class="card">
-        ${groupTitle}
-        ${cardContent}
-      </div>
-    `;
-  }
-}
-
-// ✅ รีเซ็ต
-function clearDropdown(id) {
-  document.getElementById(id).innerHTML = `<option value=''>-- เลือก --</option>`;
-}
-
-function clearResults() {
-  document.getElementById("results").innerHTML = "";
-}
+// เริ่มโหลด
+loadData();
