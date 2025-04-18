@@ -72,40 +72,62 @@ function showResults(model, year, system) {
   filtered.forEach(row => {
     container.innerHTML += `
       <div class="card">
-        <p class="card-title">📘 ${row[3]}</p>
-        <p>⏱️ ${row[5]}</p>
+        <div class="card-title">📘 ${row[3]}</div>
+        <div class="card-detail">📅 ${row[5]}</div>
       </div>
     `;
   });
 }
 
 function clearDropdown(id) {
-  const dropdown = document.getElementById(id);
-  dropdown.innerHTML = `<option value=''>-- เลือก --</option>`;
+  document.getElementById(id).innerHTML = `<option value=''>-- เลือก --</option>`;
 }
 
 function clearResults() {
   document.getElementById("results").innerHTML = "";
 }
 
-function suggestKeyword() {
-  const keyword = document.getElementById("keyword").value.trim().toLowerCase();
-  const suggestBox = document.getElementById("suggestions");
-  suggestBox.innerHTML = "";
+// 🔍 Keyword Search (Suggestion)
+function showSuggestions() {
+  const input = document.getElementById("keywordInput").value.toLowerCase();
+  const suggestionBox = document.getElementById("suggestions");
+  suggestionBox.innerHTML = "";
 
-  if (keyword.length < 2) return;
+  if (!input) return;
 
-  const matches = rawData.filter(row => row[3].toLowerCase().includes(keyword));
-  const unique = [...new Set(matches.map(row => row[3]))].slice(0, 10);
+  const suggestions = [...new Set(rawData.map(row => row[3]).filter(name => name.toLowerCase().includes(input)))];
 
-  unique.forEach(item => {
+  suggestions.slice(0, 5).forEach(item => {
     const div = document.createElement("div");
+    div.className = "suggestion";
     div.textContent = item;
-    div.onclick = () => searchByKeyword(item);
-    suggestBox.appendChild(div);
+    div.onclick = () => {
+      document.getElementById("keywordInput").value = item;
+      suggestionBox.innerHTML = "";
+      searchByKeyword();
+    };
+    suggestionBox.appendChild(div);
   });
 }
 
-function searchByKeyword(keyword) {
-  document.getElementById("keyword").value = keyword;
-  document.getElementById("suggestions").innerHTML = "";
+function searchByKeyword() {
+  const input = document.getElementById("keywordInput").value.toLowerCase();
+  const resultsDiv = document.getElementById("keywordResults");
+  const matched = rawData.filter(row => row[3].toLowerCase().includes(input));
+  resultsDiv.innerHTML = "";
+
+  if (matched.length === 0) {
+    resultsDiv.innerHTML = "<p style='color:red;'>❌ ไม่พบรายการที่เกี่ยวข้อง</p>";
+    return;
+  }
+
+  matched.forEach(row => {
+    resultsDiv.innerHTML += `
+      <div class="card">
+        <div class="card-title">📘 ${row[3]}</div>
+        <div class="card-detail">🚗 Model: ${row[0]} | 📅 Year: ${row[1]}</div>
+        <div class="card-detail">📅 ระยะ: ${row[5]}</div>
+      </div>
+    `;
+  });
+}
