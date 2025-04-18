@@ -40,7 +40,7 @@ function populateDropdowns() {
     .sort()
     .reverse();
 
-    yearSelect.innerHTML = `<option value=''>-- เลือกปีรุ่น --</option>`;
+    yearSelect.innerHTML = `<option value=''>-- เลือกรุ่นปี --</option>`;
     years.forEach(y => yearSelect.innerHTML += `<option>${y}</option>`);
 
     // เคลียร์ System และผลลัพธ์เดิม
