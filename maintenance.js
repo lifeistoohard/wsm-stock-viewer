@@ -22,32 +22,47 @@ function populateDropdowns() {
   const yearSelect  = document.getElementById("modelYear");
   const sysSelect   = document.getElementById("system");
 
-  // Model
-  const models = [...new Set(rawData.map(r => r[0]).filter(v=>v))].sort();
+  // Model (A–Z)
+  const models = [...new Set(rawData.map(r => r[0]).filter(v => v))].sort();
   modelSelect.innerHTML = `<option value=''>-- เลือก Model --</option>`;
   models.forEach(m => modelSelect.innerHTML += `<option>${m}</option>`);
 
   modelSelect.onchange = () => {
-    // Model Year
+    // Model Year (Z–A)
     const m = modelSelect.value;
     const years = [...new Set(
-      rawData.filter(r=>r[0]===m).map(r=>r[1])
-    )].sort();
+      rawData
+        .filter(r => r[0] === m)
+        .map(r => r[1])
+        .filter(v => v)
+    )]
+    // เรียงแบบ Z–A
+    .sort()
+    .reverse();
+
     yearSelect.innerHTML = `<option value=''>-- เลือกปีรุ่น --</option>`;
     years.forEach(y => yearSelect.innerHTML += `<option>${y}</option>`);
+
+    // เคลียร์ System และผลลัพธ์เดิม
     sysSelect.innerHTML = `<option value=''>-- เลือกระบบ --</option>`;
     document.getElementById("results").innerHTML = "";
   };
 
   yearSelect.onchange = () => {
-    // System
+    // System (ตามลำดับใน sheet)
     const m = modelSelect.value;
     const y = yearSelect.value;
+    // ใช้ Set เพื่อคัดเฉพาะค่าที่เจอครั้งแรก (insertion order = sheet order)
     const systems = [...new Set(
-      rawData.filter(r=>r[0]===m && r[1]===y).map(r=>r[2])
-    )].sort();
+      rawData
+        .filter(r => r[0] === m && r[1] === y)
+        .map(r => r[2])
+        .filter(v => v)
+    )];
+
     sysSelect.innerHTML = `<option value=''>-- เลือกระบบ --</option>`;
     systems.forEach(s => sysSelect.innerHTML += `<option>${s}</option>`);
+
     document.getElementById("results").innerHTML = "";
   };
 
@@ -56,7 +71,7 @@ function populateDropdowns() {
     const m = modelSelect.value, y = yearSelect.value, s = sysSelect.value;
     if (m && y && s) {
       displayGroups(
-        rawData.filter(r=>r[0]===m && r[1]===y && r[2]===s)
+        rawData.filter(r => r[0] === m && r[1] === y && r[2] === s)
       );
     }
   };
@@ -64,8 +79,8 @@ function populateDropdowns() {
 
 // เติมรายการสำหรับ autosuggest (จากคอลัมน์ “List” = index 3)
 function populateSuggestions() {
-  const dl = document.getElementById("suggestions");
-  const keys = [...new Set(rawData.map(r=>r[3]).filter(v=>v))];
+  const dl   = document.getElementById("suggestions");
+  const keys = [...new Set(rawData.map(r => r[3]).filter(v => v))];
   keys.forEach(k => {
     const o = document.createElement("option");
     o.value = k;
@@ -77,7 +92,9 @@ function populateSuggestions() {
 document.getElementById("searchBtn").onclick = () => {
   const kw = document.getElementById("search").value.trim().toLowerCase();
   if (!kw) return;
-  const filtered = rawData.filter(r=>r[3].toLowerCase().includes(kw));
+  const filtered = rawData.filter(r =>
+    r[3].toLowerCase().includes(kw)
+  );
   displayGroups(filtered);
 };
 
