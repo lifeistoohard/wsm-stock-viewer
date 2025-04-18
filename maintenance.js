@@ -12,10 +12,11 @@ fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}
   });
 
 function populateModelDropdown() {
-  const models = [...new Set(rawData.map(row => row[0]))].sort();
+  const modelSet = new Set(rawData.map(row => row[0]));
+  const modelList = Array.from(modelSet).sort();
   const modelSelect = document.getElementById("model");
   modelSelect.innerHTML = "<option value=''>-- เลือก Model --</option>";
-  models.forEach(model => {
+  modelList.forEach(model => {
     modelSelect.innerHTML += `<option value="${model}">${model}</option>`;
   });
 
@@ -27,10 +28,11 @@ function populateModelDropdown() {
 }
 
 function populateModelYearDropdown(selectedModel) {
-  const years = [...new Set(rawData.filter(row => row[0] === selectedModel).map(row => row[1]))];
+  const filtered = rawData.filter(row => row[0] === selectedModel);
+  const yearSet = new Set(filtered.map(row => row[1]));
   const yearSelect = document.getElementById("modelYear");
   yearSelect.innerHTML = "<option value=''>-- เลือก Model Year --</option>";
-  years.forEach(year => {
+  yearSet.forEach(year => {
     yearSelect.innerHTML += `<option value="${year}">${year}</option>`;
   });
 
@@ -41,10 +43,11 @@ function populateModelYearDropdown(selectedModel) {
 }
 
 function populateSystemDropdown(selectedModel, selectedYear) {
-  const systems = [...new Set(rawData.filter(row => row[0] === selectedModel && row[1] === selectedYear).map(row => row[2]))];
+  const filtered = rawData.filter(row => row[0] === selectedModel && row[1] === selectedYear);
+  const systemSet = new Set(filtered.map(row => row[2]));
   const systemSelect = document.getElementById("system");
   systemSelect.innerHTML = "<option value=''>-- เลือก System --</option>";
-  systems.forEach(sys => {
+  systemSet.forEach(sys => {
     systemSelect.innerHTML += `<option value="${sys}">${sys}</option>`;
   });
 
@@ -66,62 +69,30 @@ function showResults(model, year, system) {
     return;
   }
 
-  const group = document.createElement("div");
-  group.className = "group-box";
-  group.innerHTML = `<div class="group-title">📌 ${model} ${year} - ${system}</div>`;
-
-  filtered.forEach(row => {
-    group.innerHTML += `<div class="result-item">📖 ${row[3]} &nbsp;&nbsp;&nbsp; 🧭 ระยะ: ${row[5]}</div>`;
-  });
-
-  container.appendChild(group);
-}
-
-// 🔍 ฟังก์ชันเสิร์ชด้วย keyword
-function searchByKeyword() {
-  const keyword = document.getElementById("keyword").value.trim();
-  if (!keyword) return;
-
-  const filtered = rawData.filter(row => row[3].toLowerCase().includes(keyword.toLowerCase()));
-  const container = document.getElementById("results");
-  container.innerHTML = "";
-
-  if (filtered.length === 0) {
-    container.innerHTML = "<p>❌ ไม่พบข้อมูล</p>";
-    return;
-  }
-
+  // จัดกลุ่มตาม Model + Model Year
   const grouped = {};
-
   filtered.forEach(row => {
-    const key = `${row[0]} ${row[1]}`;
+    const key = `${row[0]}___${row[1]}`;
     if (!grouped[key]) grouped[key] = [];
     grouped[key].push(row);
   });
 
-  Object.entries(grouped).forEach(([key, rows]) => {
-    const box = document.createElement("div");
-    box.className = "group-box";
-    box.innerHTML = `<div class="group-title">🚗 ${key}</div>`;
+  Object.keys(grouped).forEach(key => {
+    const [model, year] = key.split("___");
 
-    rows.forEach(row => {
-      box.innerHTML += `<div class="result-item">📖 ${row[3]} &nbsp;&nbsp;&nbsp; 🧭 ระยะ: ${row[5]}</div>`;
-    });
-
-    container.appendChild(box);
-  });
-}
-
-// 🔁 Auto-suggest
-function handleSuggest() {
-  const keyword = document.getElementById("keyword").value.toLowerCase();
-  const suggestions = [...new Set(rawData.map(row => row[3]).filter(item => item && item.toLowerCase().includes(keyword)))];
-  const list = document.getElementById("suggestions");
-  list.innerHTML = "";
-  suggestions.forEach(text => {
-    const opt = document.createElement("option");
-    opt.value = text;
-    list.appendChild(opt);
+    container.innerHTML += `
+      <div class="card">
+        <div class="card-title" style="margin-bottom: 10px;">
+          <span><strong>${model}</strong> <span style="color: red;">(${year})</span></span>
+        </div>
+        ${grouped[key].map(row => `
+          <div class="card-detail">
+            <p><strong>📘 ${row[3]}</strong></p>
+            <p>📅 ${row[5]}</p>
+          </div>
+        `).join("")}
+      </div>
+    `;
   });
 }
 
