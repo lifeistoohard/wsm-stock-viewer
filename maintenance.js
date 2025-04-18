@@ -125,7 +125,7 @@ function searchByKeyword() {
     resultsDiv.innerHTML += `
       <div class="card">
         <div class="card-title">📘 ${row[3]}</div>
-        <div class="card-detail">🚗 Model: ${row[0]} | 📅 Year: ${row[1]}</div>
+        <div class="card-detail">🚗 Model: ${row[0]} | 📅 รุ่นปี: ${row[1]}</div>
         <div class="card-detail">📅 ระยะ: ${row[5]}</div>
       </div>
     `;
