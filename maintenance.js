@@ -42,8 +42,8 @@ function populateModelYearDropdown(selectedModel) {
   };
 }
 
-function populateSystemDropdown(selectedModel, selectedYear) {
-  const filtered = rawData.filter(row => row[0] === selectedModel && row[1] === selectedYear);
+function populateSystemDropdown(model, year) {
+  const filtered = rawData.filter(row => row[0] === model && row[1] === year);
   const systemSet = new Set(filtered.map(row => row[2]));
   const systemSelect = document.getElementById("system");
   systemSelect.innerHTML = "<option value=''>-- เลือก System --</option>";
@@ -52,7 +52,7 @@ function populateSystemDropdown(selectedModel, selectedYear) {
   });
 
   systemSelect.onchange = () => {
-    showResults(selectedModel, selectedYear, systemSelect.value);
+    showResults(model, year, systemSelect.value);
   };
 }
 
@@ -61,34 +61,64 @@ function showResults(model, year, system) {
     row[0] === model && row[1] === year && row[2] === system
   );
 
-  const container = document.getElementById("results");
-  container.innerHTML = "";
+  const resultsDiv = document.getElementById("results");
+  resultsDiv.innerHTML = "";
 
   if (filtered.length === 0) {
-    container.innerHTML = "<p>❌ ไม่พบข้อมูล</p>";
+    resultsDiv.innerHTML = "<p>❌ ไม่พบข้อมูล</p>";
     return;
   }
 
-  // จัดกลุ่มตาม Model + Model Year
+  resultsDiv.innerHTML += `
+    <div class="group-title">
+      🔧 ${model} <span class="model-year">${year}</span>
+    </div>
+    <div class="result-card">
+      ${filtered.map(row => `
+        <div>
+          <div class="item">${row[3]}</div>
+          <div class="period">${row[5]}</div>
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+
+function searchByKeyword() {
+  const keyword = document.getElementById("keywordInput").value.trim().toLowerCase();
+  const resultsDiv = document.getElementById("results");
+  resultsDiv.innerHTML = "";
+
+  if (!keyword) return;
+
+  const matches = rawData.filter(row =>
+    row[3] && row[3].toLowerCase().includes(keyword)
+  );
+
+  if (matches.length === 0) {
+    resultsDiv.innerHTML = "<p>❌ ไม่พบรายการที่เกี่ยวข้อง</p>";
+    return;
+  }
+
   const grouped = {};
-  filtered.forEach(row => {
-    const key = `${row[0]}___${row[1]}`;
+  matches.forEach(row => {
+    const key = `${row[0]}||${row[1]}`;
     if (!grouped[key]) grouped[key] = [];
     grouped[key].push(row);
   });
 
-  Object.keys(grouped).forEach(key => {
-    const [model, year] = key.split("___");
+  Object.entries(grouped).forEach(([key, items]) => {
+    const [model, year] = key.split("||");
 
-    container.innerHTML += `
-      <div class="card">
-        <div class="card-title" style="margin-bottom: 10px;">
-          <span><strong>${model}</strong> <span style="color: red;">(${year})</span></span>
-        </div>
-        ${grouped[key].map(row => `
-          <div class="card-detail">
-            <p><strong>📘 ${row[3]}</strong></p>
-            <p>📅 ${row[5]}</p>
+    resultsDiv.innerHTML += `
+      <div class="group-title">
+        🔧 ${model} <span class="model-year">${year}</span>
+      </div>
+      <div class="result-card">
+        ${items.map(row => `
+          <div>
+            <div class="item">${row[3]}</div>
+            <div class="period">${row[5]}</div>
           </div>
         `).join("")}
       </div>
