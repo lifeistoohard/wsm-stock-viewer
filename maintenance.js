@@ -9,15 +9,13 @@ fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}
   .then(data => {
     rawData = data.values;
     populateModelDropdown();
-    enableKeywordSearch(); // <-- สำคัญ
   });
 
 function populateModelDropdown() {
-  const modelSet = new Set(rawData.map(row => row[0]));
-  const modelList = Array.from(modelSet).sort();
+  const models = [...new Set(rawData.map(row => row[0]))].sort();
   const modelSelect = document.getElementById("model");
   modelSelect.innerHTML = "<option value=''>-- เลือก Model --</option>";
-  modelList.forEach(model => {
+  models.forEach(model => {
     modelSelect.innerHTML += `<option value="${model}">${model}</option>`;
   });
 
@@ -29,11 +27,10 @@ function populateModelDropdown() {
 }
 
 function populateModelYearDropdown(selectedModel) {
-  const filtered = rawData.filter(row => row[0] === selectedModel);
-  const yearSet = new Set(filtered.map(row => row[1]));
+  const years = [...new Set(rawData.filter(row => row[0] === selectedModel).map(row => row[1]))];
   const yearSelect = document.getElementById("modelYear");
   yearSelect.innerHTML = "<option value=''>-- เลือก Model Year --</option>";
-  yearSet.forEach(year => {
+  years.forEach(year => {
     yearSelect.innerHTML += `<option value="${year}">${year}</option>`;
   });
 
@@ -44,11 +41,10 @@ function populateModelYearDropdown(selectedModel) {
 }
 
 function populateSystemDropdown(selectedModel, selectedYear) {
-  const filtered = rawData.filter(row => row[0] === selectedModel && row[1] === selectedYear);
-  const systemSet = new Set(filtered.map(row => row[2]));
+  const systems = [...new Set(rawData.filter(row => row[0] === selectedModel && row[1] === selectedYear).map(row => row[2]))];
   const systemSelect = document.getElementById("system");
   systemSelect.innerHTML = "<option value=''>-- เลือก System --</option>";
-  systemSet.forEach(sys => {
+  systems.forEach(sys => {
     systemSelect.innerHTML += `<option value="${sys}">${sys}</option>`;
   });
 
@@ -70,13 +66,62 @@ function showResults(model, year, system) {
     return;
   }
 
+  const group = document.createElement("div");
+  group.className = "group-box";
+  group.innerHTML = `<div class="group-title">📌 ${model} ${year} - ${system}</div>`;
+
   filtered.forEach(row => {
-    container.innerHTML += `
-      <div class="card">
-        <p><strong style="color: darkblue; font-size: 18px;">📘 ${row[3]}</strong></p>
-        <p><strong>${row[5]}</strong></p>
-      </div>
-    `;
+    group.innerHTML += `<div class="result-item">📖 ${row[3]} &nbsp;&nbsp;&nbsp; 🧭 ระยะ: ${row[5]}</div>`;
+  });
+
+  container.appendChild(group);
+}
+
+// 🔍 ฟังก์ชันเสิร์ชด้วย keyword
+function searchByKeyword() {
+  const keyword = document.getElementById("keyword").value.trim();
+  if (!keyword) return;
+
+  const filtered = rawData.filter(row => row[3].toLowerCase().includes(keyword.toLowerCase()));
+  const container = document.getElementById("results");
+  container.innerHTML = "";
+
+  if (filtered.length === 0) {
+    container.innerHTML = "<p>❌ ไม่พบข้อมูล</p>";
+    return;
+  }
+
+  const grouped = {};
+
+  filtered.forEach(row => {
+    const key = `${row[0]} ${row[1]}`;
+    if (!grouped[key]) grouped[key] = [];
+    grouped[key].push(row);
+  });
+
+  Object.entries(grouped).forEach(([key, rows]) => {
+    const box = document.createElement("div");
+    box.className = "group-box";
+    box.innerHTML = `<div class="group-title">🚗 ${key}</div>`;
+
+    rows.forEach(row => {
+      box.innerHTML += `<div class="result-item">📖 ${row[3]} &nbsp;&nbsp;&nbsp; 🧭 ระยะ: ${row[5]}</div>`;
+    });
+
+    container.appendChild(box);
+  });
+}
+
+// 🔁 Auto-suggest
+function handleSuggest() {
+  const keyword = document.getElementById("keyword").value.toLowerCase();
+  const suggestions = [...new Set(rawData.map(row => row[3]).filter(item => item && item.toLowerCase().includes(keyword)))];
+  const list = document.getElementById("suggestions");
+  list.innerHTML = "";
+  suggestions.forEach(text => {
+    const opt = document.createElement("option");
+    opt.value = text;
+    list.appendChild(opt);
   });
 }
 
@@ -87,67 +132,4 @@ function clearDropdown(id) {
 
 function clearResults() {
   document.getElementById("results").innerHTML = "";
-}
-
-// 🔍 Keyword Search Grouped by Model + Model Year
-function enableKeywordSearch() {
-  const input = document.getElementById("keywordInput");
-  const button = document.getElementById("keywordSearch");
-
-  button.addEventListener("click", () => {
-    const keyword = input.value.trim();
-    searchByKeyword(keyword);
-  });
-
-  input.addEventListener("keyup", (e) => {
-    if (e.key === "Enter") {
-      const keyword = input.value.trim();
-      searchByKeyword(keyword);
-    }
-  });
-}
-
-function searchByKeyword(keyword) {
-  const container = document.getElementById("results");
-  container.innerHTML = "";
-
-  if (!keyword) {
-    container.innerHTML = "<p>❌ กรุณากรอกคำค้นหา</p>";
-    return;
-  }
-
-  const filtered = rawData.filter(row => row[3].includes(keyword));
-
-  if (filtered.length === 0) {
-    container.innerHTML = "<p>❌ ไม่พบข้อมูลที่เกี่ยวข้อง</p>";
-    return;
-  }
-
-  // ✅ จัดกลุ่มตาม Model + Year
-  const grouped = {};
-
-  filtered.forEach(row => {
-    const key = `${row[0]}|${row[1]}`; // Model + Year
-    if (!grouped[key]) grouped[key] = [];
-    grouped[key].push(row);
-  });
-
-  Object.entries(grouped).forEach(([key, groupRows]) => {
-    const [model, year] = key.split("|");
-    const groupBox = document.createElement("div");
-    groupBox.className = "group-box";
-    groupBox.innerHTML = `<h3>🚗 ${model} | 📅 ${year}</h3>`;
-
-    groupRows.forEach(row => {
-      const item = document.createElement("div");
-      item.className = "card";
-      item.innerHTML = `
-        <p><strong style="color: darkblue;">📘 ${row[3]}</strong></p>
-        <p><strong>ระยะ:</strong> ${row[5]}</p>
-      `;
-      groupBox.appendChild(item);
-    });
-
-    container.appendChild(groupBox);
-  });
 }
