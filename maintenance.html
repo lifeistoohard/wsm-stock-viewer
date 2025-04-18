@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-  <title>รายการบำรุงรักษา LCV</title>
+  <title>Maintenance Viewer V2.3</title>
   <style>
     body {
       font-family: sans-serif;
@@ -11,12 +11,21 @@
       max-width: 800px;
       margin: auto;
     }
+    /* สไตล์ header ภาพ */
+    header img {
+      width: 100%;
+      max-height: 250px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+      display: block;
+    }
+
     h1 {
       font-size: 24px;
       margin-bottom: 16px;
     }
 
-    /* Dropdown layout */
     .dropdowns select {
       font-size: 16px;
       padding: 8px 12px;
@@ -29,15 +38,13 @@
       margin-bottom: 24px;
     }
 
-    /* ช่องพิมพ์คำค้น + autosuggest + ปุ่ม */
     .keyword-search {
       margin-bottom: 24px;
     }
     .keyword-search input[type="text"] {
       font-size: 16px;
       padding: 8px 12px;
-      width: 100%;
-      max-width: 500px;   /* ยาวขึ้นตามขอ */
+      width: 400px;
       border-radius: 6px;
       border: 1px solid #ccc;
     }
@@ -48,7 +55,6 @@
       cursor: pointer;
     }
 
-    /* ผลลัพธ์แต่ละกลุ่ม */
     .group {
       background: #fff;
       padding: 16px 24px;
@@ -62,44 +68,51 @@
       font-size: 20px;
     }
     .group-header .model-year {
-      color: red;             /* ไฮไลต์ Model Year */
+      color: red;
       margin-left: 8px;
     }
     .item {
       margin-bottom: 12px;
     }
     .item-title {
-      font-weight: bold;      /* ชื่อรายการตัวหนา */
+      font-weight: bold;
       margin: 0 0 4px;
     }
     .item-period {
       margin: 0 0 0 1.5em;
     }
 
-    /* เครดิตและลิงก์ */
-    .credit {
+    /* เครดิต + ลิงก์กลับไปหน้า WSM Stock */
+    .footer {
       text-align: center;
+      margin-top: 2rem;
       font-size: 14px;
-      color: #666;
-      margin-top: 32px;
+      color: #555;
     }
-    .credit a {
+    .footer a {
       color: #1976d2;
       text-decoration: none;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
+
+  <!-- ① ส่วน header แสดงภาพ -->
+  <header>
+    <img src="header-web.jpg" alt="รายการบำรุงรักษา">
+  </header>
+
   <h1>🛠️ ค้นหารายการบำรุงรักษา (V2.3)</h1>
 
-  <!-- (1) Dropdown เดิม: Model / Model Year / System -->
+  <!-- ② Dropdown Model / Year / System -->
   <div class="dropdowns">
     <select id="model"><option>⌛ กำลังโหลด...</option></select>
     <select id="modelYear"><option>เลือกปีรุ่น</option></select>
     <select id="system"><option>เลือกระบบ</option></select>
   </div>
 
-  <!-- (2) ช่องพิมพ์คำค้น + autosuggest + ปุ่มค้นหา -->
+  <!-- ③ ช่องพิมพ์คำค้น + autosuggest + ปุ่มค้นหา -->
   <div class="keyword-search">
     <input 
       type="text" 
@@ -111,16 +124,16 @@
     <button id="searchBtn">ค้นหา</button>
   </div>
 
-  <!-- (3) ผลลัพธ์ -->
+  <!-- ④ ผลลัพธ์ -->
   <div id="results"></div>
 
-  <!-- เครดิต พร้อมลิงก์ไป WSM Stock Checker -->
-  <p class="credit">
+  <!-- ⑤ เครดิต + ลิงก์กลับไปหน้า WSM Stock -->
+  <div class="footer">
     Created by <strong>NA</strong> | 
     <a href="https://lifeistoohard.github.io/wsm-stock-viewer/" target="_blank">
-      ไปที่ WSM Stock Checker
+      กลับไปหน้า WSM Stock
     </a>
-  </p>
+  </div>
 
   <script src="maintenance.js"></script>
 </body>
