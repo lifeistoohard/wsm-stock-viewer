@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <title>Service Bulletins</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f2f2f2;
+      margin: 0;
+      padding: 2rem;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    h1 {
+      font-size: 24px;
+      margin-bottom: 16px;
+    }
+    .search-box {
+      margin-bottom: 24px;
+    }
+    .search-box input {
+      font-size: 16px;
+      padding: 8px;
+      width: 70%;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .search-box button {
+      font-size: 16px;
+      padding: 8px 12px;
+      margin-left: 8px;
+      cursor: pointer;
+      border: none;
+      background: #1976d2;
+      color: white;
+      border-radius: 4px;
+    }
+    .year-group {
+      margin-bottom: 32px;
+    }
+    .year-group h2 {
+      font-size: 20px;
+      margin-bottom: 12px;
+      border-bottom: 2px solid #1976d2;
+      padding-bottom: 4px;
+    }
+    .bulletin-item {
+      background: white;
+      padding: 12px 16px;
+      border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+      margin-bottom: 12px;
+    }
+    .bulletin-item a {
+      text-decoration: none;
+      color: #0d47a1;
+      font-weight: bold;
+      display: block;
+    }
+    .bulletin-item a:hover {
+      text-decoration: underline;
+    }
+    .bulletin-item .meta {
+      font-size: 14px;
+      color: #555;
+      margin-top: 4px;
+    }
+    .footer {
+      text-align: center;
+      font-size: 14px;
+      color: #888;
+      margin-top: 40px;
+    }
+    .footer a {
+      color: #1976d2;
+      text-decoration: none;
+      margin: 0 8px;
+    }
+    .footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <h1>📄 Service Bulletins</h1>
+
+  <!-- ช่องค้นหา -->
+  <div class="search-box">
+    <input
+      type="text"
+      id="searchInput"
+      placeholder="🔍 พิมพ์คำ เช่น engine, ระบบเบรก…"
+    />
+    <button id="searchBtn">ค้นหา</button>
+  </div>
+
+  <!-- ตรงนี้จะให้ JS สร้างกล่องปีและรายการ PDF ลงไป -->
+  <div id="bulletinContainer"></div>
+
+  <!-- เครดิต & ลิงก์กลับ -->
+  <div class="footer">
+    Created by <strong>NA</strong>
+    | <a href="index.html">WSM Stock</a>
+    | <a href="maintenance.html">ค้นหาตารางบำรุงรักษา</a>
+  </div>
+
+  <script src="service.js"></script>
+</body>
+</html>
