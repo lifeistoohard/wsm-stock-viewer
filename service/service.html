@@ -7,11 +7,12 @@
     body {
       font-family: sans-serif;
       background: #f2f2f2;
-      margin: 0;
       padding: 2rem;
       max-width: 800px;
-      margin-left: auto;
-      margin-right: auto;
+      margin: auto;
+    }
+    header {
+      margin-bottom: 1.5rem;
     }
     h1 {
       font-size: 24px;
@@ -84,7 +85,9 @@
   </style>
 </head>
 <body>
-  <h1>📄 Service Bulletins</h1>
+  <header>
+    <h1>📄 Service Bulletins</h1>
+  </header>
 
   <!-- ช่องค้นหา -->
   <div class="search-box">
@@ -96,14 +99,14 @@
     <button id="searchBtn">ค้นหา</button>
   </div>
 
-  <!-- ตรงนี้จะให้ JS สร้างกล่องปีและรายการ PDF ลงไป -->
+  <!-- ตรงนี้ JS จะเติมรายการปีและ PDF -->
   <div id="bulletinContainer"></div>
 
   <!-- เครดิต & ลิงก์กลับ -->
   <div class="footer">
     Created by <strong>NA</strong>
     | <a href="index.html">WSM Stock</a>
-    | <a href="maintenance.html">ค้นหาตารางบำรุงรักษา</a>
+    | <a href="maintenance.html">Maintenance Viewer</a>
   </div>
 
   <script src="service.js"></script>
