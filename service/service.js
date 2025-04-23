@@ -131,8 +131,10 @@ function renderList(data) {
     return;
   }
 
-  const years = [...new Set(data.map(b => b.year))].sort((a, b) => b - a);
-  const latestYear = years[0]; // ปีล่าสุด (อยู่ด้านบนสุด)
+  const years = [...new Set(data.map(b => b.year))].sort((a, b) => b - a); // เรียงปีจากมากไปน้อย
+  const latestYear = Math.max(...years); // ✅ หาปีล่าสุดจริง ๆ
+
+  years.sort((a, b) => b - a); // ✅ แสดงปีจากมากไปน้อย
 
   years.forEach(year => {
     const groupDiv = document.createElement("div");
@@ -145,9 +147,7 @@ function renderList(data) {
 
     const itemsWrapper = document.createElement("div");
     itemsWrapper.className = "bulletin-items";
-
-    // ✅ ถ้าเป็นปีล่าสุดให้เปิดไว้, นอกนั้นพับ
-    itemsWrapper.style.display = year === latestYear ? "block" : "none";
+    itemsWrapper.style.display = year === latestYear ? "block" : "none"; // ✅ เปิดเฉพาะปีล่าสุด
 
     h2.addEventListener("click", () => {
       const shown = itemsWrapper.style.display === "block";
@@ -162,7 +162,7 @@ function renderList(data) {
 
     data
       .filter(b => b.year === year)
-      .sort((a, b) => getNum(b.title) - getNum(a.title))
+      .sort((a, b) => getNum(b.title) - getNum(a.title)) // เรียงเลขท้ายชื่อไฟล์จากน้อยไปมาก
       .forEach(b => {
         const item = document.createElement("div");
         item.className = "bulletin-item";
@@ -178,6 +178,7 @@ function renderList(data) {
     container.appendChild(groupDiv);
   });
 }
+
 
 // —————————————————————————————
 // 3) ฟังก์ชันค้นหา
