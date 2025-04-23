@@ -132,21 +132,22 @@ function renderList(data) {
   }
 
   const years = [...new Set(data.map(b => b.year))].sort((a, b) => b - a);
+  const latestYear = years[0]; // ปีล่าสุด (อยู่ด้านบนสุด)
 
   years.forEach(year => {
     const groupDiv = document.createElement("div");
     groupDiv.className = "year-group";
 
-    // Header ที่กดได้
     const h2 = document.createElement("h2");
     h2.className = "year-header";
-    h2.innerHTML = `▶ ${year}`;
+    h2.innerHTML = `${year === latestYear ? "▼" : "▶"} ${year}`;
     h2.style.cursor = "pointer";
 
-    // กลุ่มรายการที่จะพับเก็บได้
     const itemsWrapper = document.createElement("div");
     itemsWrapper.className = "bulletin-items";
-    itemsWrapper.style.display = "none"; // เริ่มต้นพับไว้
+
+    // ✅ ถ้าเป็นปีล่าสุดให้เปิดไว้, นอกนั้นพับ
+    itemsWrapper.style.display = year === latestYear ? "block" : "none";
 
     h2.addEventListener("click", () => {
       const shown = itemsWrapper.style.display === "block";
@@ -177,8 +178,6 @@ function renderList(data) {
     container.appendChild(groupDiv);
   });
 }
-
-
 
 // —————————————————————————————
 // 3) ฟังก์ชันค้นหา
