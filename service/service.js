@@ -131,7 +131,7 @@ function renderList(data) {
     return;
   }
 
-  // 1) unique ปี เรียงจากมาก→น้อย (2025 → 2020) — เดิมตรงนี้ถูกต้องแล้ว
+  // 1) หา unique ปี แล้วเรียงจากมาก→น้อย (2025 → 2020)
   const years = [...new Set(data.map(b => b.year))].sort((a, b) => b - a);
 
   years.forEach(year => {
@@ -142,32 +142,32 @@ function renderList(data) {
     h2.textContent = year;
     groupDiv.appendChild(h2);
 
-    // 2) ภายในแต่ละปี ให้เรียงจากตัวเลขมาก→น้อย (เช่น 07 → 01)
-    // ใช้ชื่อไฟล์ (หรือ title) เป็นเกณฑ์เรียง
+    // 2) กรองเฉพาะปีนี้แล้วเรียงลำดับเลขคู่สุดท้ายจากมาก→น้อย
     const items = data
       .filter(b => b.year === year)
       .sort((a, b) => {
-        // ดึงเลขคู่ท้ายออกมา (เช่น "2020-07" → 7) เพื่อเปรียบเทียบ
-        const numA = parseInt(a.title.split('-')[2], 10);
-        const numB = parseInt(b.title.split('-')[2], 10);
-        return numB - numA;
+        // หาตัวเลขคู่สุดท้ายจากชื่อ "TSE-SVB-2020-07 …"
+        const getNum = title => {
+          const m = title.match(/TSE-SVB-\d{4}-(\d{2})/);
+          return m ? parseInt(m[1], 10) : 0;
+        };
+        return getNum(b.title) - getNum(a.title);
       });
 
     items.forEach(b => {
       const item = document.createElement("div");
       item.className = "bulletin-item";
-      // 3) แก้ตรงนี้ให้ใช้ backticks ครอบทั้ง block innerHTML
-item.innerHTML = `
-  <a href="${b.file}" target="_blank">${b.title}</a>
-  <div class="meta">ไฟล์: ${b.file.split("/").pop()}</div>
-`;
-
+      item.innerHTML = `
+        <a href="${b.file}" target="_blank">${b.title}</a>
+        <div class="meta">ไฟล์: ${b.file.split("/").pop()}</div>
+      `;
       groupDiv.appendChild(item);
     });
 
     container.appendChild(groupDiv);
   });
 }
+
 
 
 // —————————————————————————————
