@@ -131,39 +131,49 @@ function renderList(data) {
     return;
   }
 
-  // 1) หา unique ปี แล้วเรียงจากมาก→น้อย (2025 → 2020)
   const years = [...new Set(data.map(b => b.year))].sort((a, b) => b - a);
 
   years.forEach(year => {
     const groupDiv = document.createElement("div");
     groupDiv.className = "year-group";
 
+    // Header ที่กดได้
     const h2 = document.createElement("h2");
-    h2.textContent = year;
-    groupDiv.appendChild(h2);
+    h2.className = "year-header";
+    h2.innerHTML = `▶ ${year}`;
+    h2.style.cursor = "pointer";
 
-    // 2) กรองเฉพาะปีนี้แล้วเรียงลำดับเลขคู่สุดท้ายจากมาก→น้อย
-    const items = data
-      .filter(b => b.year === year)
-      .sort((a, b) => {
-        // หาตัวเลขคู่สุดท้ายจากชื่อ "TSE-SVB-2020-07 …"
-        const getNum = title => {
-          const m = title.match(/TSE-SVB-\d{4}-(\d{2})/);
-          return m ? parseInt(m[1], 10) : 0;
-        };
-        return getNum(b.title) - getNum(a.title);
-      });
+    // กลุ่มรายการที่จะพับเก็บได้
+    const itemsWrapper = document.createElement("div");
+    itemsWrapper.className = "bulletin-items";
+    itemsWrapper.style.display = "none"; // เริ่มต้นพับไว้
 
-    items.forEach(b => {
-      const item = document.createElement("div");
-      item.className = "bulletin-item";
-      item.innerHTML = `
-        <a href="${b.file}" target="_blank">${b.title}</a>
-        <div class="meta">ไฟล์: ${b.file.split("/").pop()}</div>
-      `;
-      groupDiv.appendChild(item);
+    h2.addEventListener("click", () => {
+      const shown = itemsWrapper.style.display === "block";
+      itemsWrapper.style.display = shown ? "none" : "block";
+      h2.innerHTML = `${shown ? "▶" : "▼"} ${year}`;
     });
 
+    const getNum = title => {
+      const m = title.match(/TSE-SVB-\d{4}-(\d{2})/);
+      return m ? parseInt(m[1], 10) : 0;
+    };
+
+    data
+      .filter(b => b.year === year)
+      .sort((a, b) => getNum(b.title) - getNum(a.title))
+      .forEach(b => {
+        const item = document.createElement("div");
+        item.className = "bulletin-item";
+        item.innerHTML = `
+          <a href="${b.file}" target="_blank">${b.title}</a>
+          <div class="meta">ไฟล์: ${b.file.split("/").pop()}</div>
+        `;
+        itemsWrapper.appendChild(item);
+      });
+
+    groupDiv.appendChild(h2);
+    groupDiv.appendChild(itemsWrapper);
     container.appendChild(groupDiv);
   });
 }
