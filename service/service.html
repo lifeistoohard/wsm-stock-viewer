@@ -67,14 +67,20 @@
       margin-top: 6px;
     }
     .tag {
-      display: inline-block;
-      background: #858686;
-      color: #ffffff;
-      padding: 3px 8px;
-      font-size: 12px;
-      border-radius: 12px;
-      margin-right: 6px;
-    }
+  display: inline-block;
+  background: #858686;
+  color: #ffffff;
+  padding: 3px 8px;
+  font-size: 12px;
+  border-radius: 12px;
+  margin-right: 6px;
+  cursor: pointer; /* ✅ เพิ่มให้เป็นรูปนิ้วมือเมื่อ hover */
+  transition: background 0.2s ease;
+}
+.tag:hover {
+  background: #6c6d6d; /* ✅ สีเข้มขึ้นนิดเดียวตอน hover */
+}
+
     .footer {
       text-align: center;
       font-size: 14px;
