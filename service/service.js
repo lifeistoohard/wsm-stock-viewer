@@ -119,9 +119,6 @@ const bulletins = [
   { title: "TSE-SVB-2025-07 วิธีการบำรุงรักษาและการตรวจสอบแรงดันไอเสียของกรอง DPD.pdf", year: 2025, file: "TSE-SVB-2025-07%20วิธีการบำรุงรักษาและการตรวจสอบแรงดันไอเสียของกรอง%20DPD.pdf",tags: ["DPD", "ระบบไอเสีย", "บำรุงรักษา"] },
 ];
 
-// —————————————————————————————
-// 2) แสดงรายการ grouped by year (2025 → 2024 → …)
-// —————————————————————————————
 function renderList(data) {
   const container = document.getElementById("bulletinContainer");
   container.innerHTML = "";
@@ -131,10 +128,10 @@ function renderList(data) {
     return;
   }
 
-  const years = [...new Set(data.map(b => b.year))].sort((a, b) => b - a); // เรียงปีจากมากไปน้อย
-  const latestYear = Math.max(...years); // ✅ หาปีล่าสุดจริง ๆ
+  const years = [...new Set(data.map(b => b.year))].sort((a, b) => b - a);
+  const latestYear = Math.max(...years);
 
-  years.sort((a, b) => b - a); // ✅ แสดงปีจากมากไปน้อย
+  years.sort((a, b) => b - a);
 
   years.forEach(year => {
     const groupDiv = document.createElement("div");
@@ -147,7 +144,7 @@ function renderList(data) {
 
     const itemsWrapper = document.createElement("div");
     itemsWrapper.className = "bulletin-items";
-    itemsWrapper.style.display = year === latestYear ? "block" : "none"; // ✅ เปิดเฉพาะปีล่าสุด
+    itemsWrapper.style.display = year === latestYear ? "block" : "none";
 
     h2.addEventListener("click", () => {
       const shown = itemsWrapper.style.display === "block";
@@ -162,18 +159,16 @@ function renderList(data) {
 
     data
       .filter(b => b.year === year)
-      .sort((a, b) => getNum(b.title) - getNum(a.title)) // เรียงเลขท้ายชื่อไฟล์จากน้อยไปมาก
+      .sort((a, b) => getNum(b.title) - getNum(a.title))
       .forEach(b => {
         const item = document.createElement("div");
         item.className = "bulletin-item";
-item.innerHTML = `
-  <a href="${b.file}" target="_blank">${b.title}</a>
-  <div class="meta-tags">
-    ${(b.tags || []).map(tag => `<span class="tag" data-tag="${tag}">${tag}</span>`).join(" ")}
-  </div>
-`;
-
-
+        item.innerHTML = `
+          <a href="${b.file}" target="_blank">${b.title}</a>
+          <div class="meta-tags">
+            ${(b.tags || []).map(tag => `<span class="tag" data-tag="${tag}" style="cursor:pointer;">${tag}</span>`).join(" ")}
+          </div>
+        `;
         itemsWrapper.appendChild(item);
       });
 
@@ -181,26 +176,35 @@ item.innerHTML = `
     groupDiv.appendChild(itemsWrapper);
     container.appendChild(groupDiv);
   });
+
+  enableTagSearch(); // <- หลัง render ต้อง enable ใหม่ทุกครั้ง
 }
 
+// 👇 เพิ่มฟังก์ชันช่วยจัดการปุ่มย้อนกลับ
+function showBackButton() {
+  document.getElementById("backBtn").style.display = "block";
+}
+function hideBackButton() {
+  document.getElementById("backBtn").style.display = "none";
+}
 
-// —————————————————————————————
-// 3) ฟังก์ชันค้นหา
-// —————————————————————————————
 function setupSearch() {
   const input = document.getElementById("searchInput");
-  const btn   = document.getElementById("searchBtn");
+  const btn = document.getElementById("searchBtn");
 
   function doSearch() {
     const kw = input.value.trim().toLowerCase();
     if (!kw) {
       renderList(bulletins);
+      hideBackButton();
       return;
     }
     const filtered = bulletins.filter(b =>
-      b.title.toLowerCase().includes(kw)
+      b.title.toLowerCase().includes(kw) ||
+      (b.tags || []).some(t => t.toLowerCase().includes(kw))
     );
     renderList(filtered);
+    showBackButton();
   }
 
   btn.addEventListener("click", doSearch);
@@ -208,24 +212,27 @@ function setupSearch() {
     if (e.key === "Enter") doSearch();
   });
 }
+
 function enableTagSearch() {
   document.querySelectorAll(".tag").forEach(tagEl => {
     tagEl.addEventListener("click", () => {
       const selectedTag = tagEl.dataset.tag.toLowerCase();
-      const filtered = bulletins.filter(b => (b.tags || []).some(t => t.toLowerCase() === selectedTag));
+      const filtered = bulletins.filter(b =>
+        (b.tags || []).some(t => t.toLowerCase() === selectedTag)
+      );
       renderList(filtered);
-      setupSearch();      // เพื่อให้ปุ่มค้นหายังทำงานได้
-      enableTagSearch();  // เพื่อให้ tag ใหม่ที่ถูก render หลังการกรอง ยังคลิกได้
+      showBackButton();
     });
   });
 }
 
-// —————————————————————————————
-// 4) เมื่อโหลดหน้า
-// —————————————————————————————
 window.addEventListener("DOMContentLoaded", () => {
   renderList(bulletins);
   setupSearch();
-  enableTagSearch(); // <<< เพิ่มบรรทัดนี้
-});
+  hideBackButton();
 
+  document.querySelector("#backBtn button").addEventListener("click", () => {
+    renderList(bulletins);
+    hideBackButton();
+  });
+});
