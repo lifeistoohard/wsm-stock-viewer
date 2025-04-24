@@ -166,12 +166,13 @@ function renderList(data) {
       .forEach(b => {
         const item = document.createElement("div");
         item.className = "bulletin-item";
-    item.innerHTML = `
+item.innerHTML = `
   <a href="${b.file}" target="_blank">${b.title}</a>
   <div class="meta-tags">
-    ${(b.tags || []).map(tag => `<span class="tag">${tag}</span>`).join(" ")}
+    ${(b.tags || []).map(tag => `<span class="tag" data-tag="${tag}">${tag}</span>`).join(" ")}
   </div>
 `;
+
 
         itemsWrapper.appendChild(item);
       });
@@ -207,6 +208,17 @@ function setupSearch() {
     if (e.key === "Enter") doSearch();
   });
 }
+function enableTagSearch() {
+  document.querySelectorAll(".tag").forEach(tagEl => {
+    tagEl.addEventListener("click", () => {
+      const selectedTag = tagEl.dataset.tag.toLowerCase();
+      const filtered = bulletins.filter(b => (b.tags || []).some(t => t.toLowerCase() === selectedTag));
+      renderList(filtered);
+      setupSearch();      // เพื่อให้ปุ่มค้นหายังทำงานได้
+      enableTagSearch();  // เพื่อให้ tag ใหม่ที่ถูก render หลังการกรอง ยังคลิกได้
+    });
+  });
+}
 
 // —————————————————————————————
 // 4) เมื่อโหลดหน้า
@@ -214,4 +226,6 @@ function setupSearch() {
 window.addEventListener("DOMContentLoaded", () => {
   renderList(bulletins);
   setupSearch();
+  enableTagSearch(); // <<< เพิ่มบรรทัดนี้
 });
+
