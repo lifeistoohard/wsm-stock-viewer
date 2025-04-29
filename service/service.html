@@ -1,8 +1,19 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
+  
   <meta charset="UTF-8" />
   <title>Service Bulletins</title>
+  <script>
+    const password = "tsetss"; // <<< ตั้งรหัสผ่านตรงนี้
+
+    const userInput = prompt("🔒 กรุณาใส่รหัสผ่านเพื่อเข้าใช้งาน:");
+
+    if (userInput !== password) {
+      alert("❌ รหัสผ่านไม่ถูกต้อง!");
+      window.location.href = "https://www.google.com"; // หรือเปลี่ยนไปหน้าอื่นที่คุณต้องการ
+    }
+  </script>
   <style>
     body {
       font-family: sans-serif;
