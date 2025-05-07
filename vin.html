@@ -2,51 +2,86 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-  <title>VIN Viewer</title>
+  <title>VIN Search</title>
   <style>
     body {
       font-family: sans-serif;
-      background: #eef1f4;
+      background: #f5f5f5;
       padding: 2rem;
       max-width: 800px;
       margin: auto;
     }
-    input[type="text"] {
-      width: 300px;
-      padding: 8px;
-      font-size: 16px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
+
+    h1 {
+      font-size: 24px;
+      margin-bottom: 1rem;
     }
-    button {
-      padding: 8px 12px;
+
+    .search-box {
+      margin-bottom: 1.5rem;
+    }
+
+    .search-box input {
       font-size: 16px;
+      padding: 8px;
+      width: 70%;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    .search-box button {
+      font-size: 16px;
+      padding: 8px 12px;
       margin-left: 8px;
       cursor: pointer;
+      border: none;
+      background: #1976d2;
+      color: white;
+      border-radius: 6px;
     }
-    .result {
-      margin-top: 24px;
-      padding: 16px;
+
+    .result-box {
       background: white;
+      padding: 16px 24px;
       border-radius: 8px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      display: none;
     }
-    .result p {
-      margin: 6px 0;
+
+    .footer {
+      text-align: center;
+      margin-top: 3rem;
+      font-size: 14px;
+      color: #555;
+    }
+
+    .footer a {
+      color: #1976d2;
+      text-decoration: none;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
-  <h1>🔍 ค้นหา VIN (Model Name)</h1>
-  <input id="modelInput" type="text" placeholder="ใส่ Model name เช่น XYZ1234567">
-  <button onclick="searchVIN()">ค้นหา</button>
 
-  <div id="resultBox" class="result" style="display:none;"></div>
+  <h1>🔍 ค้นหาข้อมูลจาก Model Name (VIN Viewer)</h1>
+
+  <div class="search-box">
+    <input type="text" id="modelInput" placeholder="พิมพ์ชื่อ Model Name เช่น NLR88FTF..." />
+    <button onclick="searchVIN()">ค้นหา</button>
+  </div>
+
+  <div id="resultBox" class="result-box"></div>
+
+  <div class="footer">
+    Created by <strong>NA</strong> |
+    <a href="https://lifeistoohard.github.io/wsm-stock-viewer/">กลับไปหน้า WSM Stock</a>
+  </div>
 
   <script>
     const SHEET_ID = "19pJJpiDKatYgUmO_43SUyECxqTYaqfhwcQwYiuxn-d8";
     const API_KEY  = "AIzaSyAki5uoqv3JpG7sqZ7crpaALomcUxlD72k";
-    const RANGE    = "VIN!A2:T";
+    const RANGE    = "VIN!A2:Z";
 
     let vinData = [];
 
@@ -58,22 +93,31 @@
     }
 
     function searchVIN() {
-      const keyword = document.getElementById("modelInput").value.trim();
-      const found = vinData.find(row => row[0] === keyword);
+      const keyword = document.getElementById("modelInput").value.trim().toLowerCase();
+      if (!keyword) return;
+
+      const matched = vinData.filter(row =>
+        row[0] && row[0].toLowerCase().includes(keyword)
+      );
 
       const box = document.getElementById("resultBox");
-      if (!found) {
+
+      if (!matched.length) {
         box.innerHTML = "<p style='color:red;'>❌ ไม่พบข้อมูล</p>";
-      } else {
-        box.innerHTML = `
-          <p><strong>📅 ปีรุ่น:</strong> ${found[2] || "-"}</p>
-          <p><strong>🛠️ เครื่องยนต์:</strong> ${found[5] || "-"}</p>
-          <p><strong>⚙️ เกียร์:</strong> ${found[9] || "-"}</p>
-          <p><strong>🚛 Cab:</strong> ${found[15] || "-"}</p>
-          <p><strong>🔢 Model group:</strong> ${found[16] || "-"}</p>
-          <p><strong>🛑 Brake:</strong> ${found[19] || "-"}</p>
-        `;
+        box.style.display = "block";
+        return;
       }
+
+      const found = matched[0]; // เอาอันแรกพอ
+
+      box.innerHTML = `
+        <p><strong>📅 ปีรุ่น:</strong> ${found[2] || "-"}</p>
+        <p><strong>🛠️ เครื่องยนต์:</strong> ${found[5] || "-"}</p>
+        <p><strong>⚙️ เกียร์:</strong> ${found[9] || "-"}</p>
+        <p><strong>🚛 Cab:</strong> ${found[15] || "-"}</p>
+        <p><strong>🔢 Model group:</strong> ${found[16] || "-"}</p>
+        <p><strong>🛑 Brake:</strong> ${found[19] || "-"}</p>
+      `;
       box.style.display = "block";
     }
 
