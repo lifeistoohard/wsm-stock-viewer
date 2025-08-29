@@ -386,16 +386,3 @@ function enableTagSearch() {
         });
     });
 }
-
-window.addEventListener("DOMContentLoaded", () => {
-    setupTabSwitching();
-    renderList(bulletins);
-    setupSearch();
-    setupAiSearch();
-    hideBackButton();
-
-    document.querySelector("#backBtn button").addEventListener("click", () => {
-        renderList(bulletins);
-        hideBackButton();
-    });
-});
