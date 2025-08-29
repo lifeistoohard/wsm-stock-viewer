@@ -63,9 +63,7 @@ function setupTabSwitching() {
 }
 
 // ... โค้ดส่วนบนของไฟล์ HTML/JS ของคุณ
-const aiData = [
-    // ... ข้อมูลที่คุณ export มา
-];
+
 
 function setupAiSearch() {
     const aiSearchBtn = document.getElementById("aiSearchBtn");
@@ -78,7 +76,7 @@ function setupAiSearch() {
             searchResultsContainer.innerHTML = "กำลังค้นหา...";
 
             // API Key ของคุณ - ใส่ไว้ตรงนี้
-            const YOUR_API_KEY = "AIzaSyDsyXfT8nrlG56wo3zL9x9W_KPv5uHsxMY"; 
+            const YOUR_API_KEY = ""; 
             
             try {
                 // สร้าง Prompt สำหรับ AI
