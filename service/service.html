@@ -1,144 +1,173 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  
-  <meta charset="UTF-8" />
-  <title>Service Bulletins</title>
-  <script>
-    const password = "tsetss"; // <<< ตั้งรหัสผ่านตรงนี้
+    
+    <meta charset="UTF-8" />
+    <title>Service Bulletins</title>
+    <script>
+        const password = "tsetss"; // <<< ตั้งรหัสผ่านตรงนี้
 
-    const userInput = prompt("🔒 กรุณาใส่รหัสผ่านเพื่อเข้าใช้งาน:");
+        const userInput = prompt("🔒 กรุณาใส่รหัสผ่านเพื่อเข้าใช้งาน:");
 
-    if (userInput !== password) {
-      alert("❌ รหัสผ่านไม่ถูกต้อง!");
-      window.location.href = "https://www.google.com"; // หรือเปลี่ยนไปหน้าอื่นที่คุณต้องการ
-    }
-  </script>
-  <style>
-    body {
-      font-family: sans-serif;
-      background: #f2f2f2;
-      padding: 2rem;
-      max-width: 800px;
-      margin: auto;
-    }
-    header {
-      margin-bottom: 1.5rem;
-    }
-    h1 {
-      font-size: 24px;
-      margin-bottom: 16px;
-    }
-    .search-box {
-      margin-bottom: 24px;
-    }
-    .search-box input {
-      font-size: 16px;
-      padding: 8px;
-      width: 70%;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-    .search-box button {
-      font-size: 16px;
-      padding: 8px 12px;
-      margin-left: 8px;
-      cursor: pointer;
-      border: none;
-      background: #1976d2;
-      color: white;
-      border-radius: 4px;
-    }
-    .year-group {
-      margin-bottom: 32px;
-    }
-    .year-group h2 {
-      font-size: 20px;
-      margin-bottom: 12px;
-      border-bottom: 2px solid #1976d2;
-      padding-bottom: 4px;
-    }
-    .bulletin-item {
-      background: white;
-      padding: 12px 16px;
-      border-radius: 8px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-      margin-bottom: 12px;
-    }
-    .bulletin-item a {
-      text-decoration: none;
-      color: #0d47a1;
-      font-weight: bold;
-      display: block;
-    }
-    .bulletin-item a:hover {
-      text-decoration: underline;
-    }
-    .meta-tags {
-      margin-top: 6px;
-    }
-    .tag {
-  display: inline-block;
-  background: #858686;
-  color: #ffffff;
-  padding: 3px 8px;
-  font-size: 12px;
-  border-radius: 12px;
-  margin-right: 6px;
-  cursor: pointer; /* ✅ เพิ่มให้เป็นรูปนิ้วมือเมื่อ hover */
-  transition: background 0.2s ease;
-}
-.tag:hover {
-  background: #6c6d6d; /* ✅ สีเข้มขึ้นนิดเดียวตอน hover */
-}
+        if (userInput !== password) {
+            alert("❌ รหัสผ่านไม่ถูกต้อง!");
+            window.location.href = "https://www.google.com"; // หรือเปลี่ยนไปหน้าอื่นที่คุณต้องการ
+        }
+    </script>
+    <style>
+        body {
+            font-family: sans-serif;
+            background: #f2f2f2;
+            padding: 2rem;
+            max-width: 800px;
+            margin: auto;
+        }
+        header {
+            margin-bottom: 1.5rem;
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 16px;
+        }
+        .search-box {
+            margin-bottom: 24px;
+        }
+        .search-box input {
+            font-size: 16px;
+            padding: 8px;
+            width: 70%;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .search-box button {
+            font-size: 16px;
+            padding: 8px 12px;
+            margin-left: 8px;
+            cursor: pointer;
+            border: none;
+            background: #1976d2;
+            color: white;
+            border-radius: 4px;
+        }
+        .year-group {
+            margin-bottom: 32px;
+        }
+        .year-group h2 {
+            font-size: 20px;
+            margin-bottom: 12px;
+            border-bottom: 2px solid #1976d2;
+            padding-bottom: 4px;
+        }
+        .bulletin-item {
+            background: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+            margin-bottom: 12px;
+        }
+        .bulletin-item a {
+            text-decoration: none;
+            color: #0d47a1;
+            font-weight: bold;
+            display: block;
+        }
+        .bulletin-item a:hover {
+            text-decoration: underline;
+        }
+        .meta-tags {
+            margin-top: 6px;
+        }
+        .tag {
+            display: inline-block;
+            background: #858686;
+            color: #ffffff;
+            padding: 3px 8px;
+            font-size: 12px;
+            border-radius: 12px;
+            margin-right: 6px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+        .tag:hover {
+            background: #6c6d6d;
+        }
 
-    .footer {
-      text-align: center;
-      font-size: 14px;
-      color: #888;
-      margin-top: 40px;
-    }
-    .footer a {
-      color: #1976d2;
-      text-decoration: none;
-      margin: 0 8px;
-    }
-    .footer a:hover {
-      text-decoration: underline;
-    }
-  </style>
+        .footer {
+            text-align: center;
+            font-size: 14px;
+            color: #888;
+            margin-top: 40px;
+        }
+        .footer a {
+            color: #1976d2;
+            text-decoration: none;
+            margin: 0 8px;
+        }
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        /* New CSS for tab navigation */
+        .tab-nav {
+            margin-bottom: 16px;
+            display: flex;
+            gap: 8px;
+        }
+        .tab-nav button {
+            padding: 8px 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #f0f0f0;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        .tab-nav button.active {
+            background-color: #1976d2;
+            color: white;
+            border-color: #1976d2;
+        }
+        .search-container {
+            /* Keep original .search-box styling */
+        }
+    </style>
 </head>
 <body>
-  <header>
-    <img src="Bulletin-header.jpg" alt="Bulletin Header" style="width: 100%; max-width: 800px; border-radius: 8px; margin-bottom: 16px;" />
-  </header>
+    <header>
+        <img src="Bulletin-header.jpg" alt="Bulletin Header" style="width: 100%; max-width: 800px; border-radius: 8px; margin-bottom: 16px;" />
+    </header>
 
-  <!-- ช่องค้นหา -->
-  <div class="search-box">
-    <input
-      type="text"
-      id="searchInput"
-      placeholder="🔍 ค้นหาคำ เช่น ล้อและยาง, บำรุงรักษา..."
-    />
-    <button id="searchBtn">ค้นหา</button>
-  </div>
-<div id="backBtn" style="display:none; margin-bottom: 16px;">
-  <button style="padding: 6px 12px; font-size: 14px; background: #ee1d25; color: white; border: none; border-radius: 6px; cursor: pointer;">
-    🔙 กลับไปยังรายการทั้งหมด
-  </button>
-</div>
+    <div class="tab-nav">
+        <button id="normalSearchTab" class="active">ค้นหาปกติ</button>
+        <button id="aiSearchTab">ค้นหาด้วย AI</button>
+    </div>
 
-  <!-- ตรงนี้ JS จะเติมรายการปีและ PDF -->
-  <div id="bulletinContainer"></div>
+    <div id="normalSearchContainer">
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="🔍 ค้นหาคำ เช่น ล้อและยาง, บำรุงรักษา..." />
+            <button id="searchBtn">ค้นหา</button>
+        </div>
+    </div>
 
-  <!-- เครดิต & ลิงก์กลับ -->
-<div class="footer">
-  Created by <strong>NA</strong>
-  | <a href="https://lifeistoohard.github.io/wsm-stock-viewer/">WSM Stock</a>
-  | <a href="https://lifeistoohard.github.io/wsm-stock-viewer/maintenance">Maintenance Viewer</a>
-</div>
+    <div id="aiSearchContainer" style="display:none;">
+        <div class="search-box">
+            <input type="text" id="aiSearchInput" placeholder="🤖 ถามคำถาม เช่น เฟืองท้ายมีเสียงดัง ทำยังไง?" />
+            <button id="aiSearchBtn">ถาม AI</button>
+        </div>
+    </div>
 
+    <div id="backBtn" style="display:none; margin-bottom: 16px;">
+        <button style="padding: 6px 12px; font-size: 14px; background: #ee1d25; color: white; border: none; border-radius: 6px; cursor: pointer;">
+            🔙 กลับไปยังรายการทั้งหมด
+        </button>
+    </div>
 
-  <script src="service.js"></script>
+    <div id="bulletinContainer"></div>
+
+    <div class="footer">
+        Created by <strong>NA</strong>
+        | <a href="https://lifeistoohard.github.io/wsm-stock-viewer/">WSM Stock</a>
+        | <a href="https://lifeistoohard.github.io/wsm-stock-viewer/maintenance">Maintenance Viewer</a>
+    </div>
+
+    <script src="service.js"></script>
 </body>
 </html>
