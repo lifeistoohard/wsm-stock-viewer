@@ -386,3 +386,8 @@ function enableTagSearch() {
         });
     });
 }
+window.addEventListener("DOMContentLoaded", () => {
+    renderList(bulletins);
+    setupSearch();
+    hideBackButton();
+});
