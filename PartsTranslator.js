@@ -54,7 +54,7 @@ function displayResults(rows) {
     results.innerHTML = "";
 
     if (!rows.length) {
-        results.innerHTML = `<p style="color:red;">❌ ไม่พบคำว่า "${document.getElementById("search").value}"</p>`;
+        results.innerHTML = `<p style="color:red; text-align: center;">❌ ไม่พบคำว่า "${document.getElementById("search").value}"</p>`;
         return;
     }
 
@@ -64,12 +64,10 @@ function displayResults(rows) {
         const thai = r[1] || "-";
 
         const g = document.createElement("div");
-        g.className = "group";
+        g.className = "result-group"; // แก้ไขจาก "group" เป็น "result-group"
         g.innerHTML = `
-            <p class="group-header"><strong>${english}</strong></p>
-            <div class="item">
-                <p class="item-title">📘 ${thai}</p>
-            </div>
+            <h2>${english}</h2>
+            <p><strong>คำแปล:</strong> ${thai}</p>
         `;
         results.appendChild(g);
     });
