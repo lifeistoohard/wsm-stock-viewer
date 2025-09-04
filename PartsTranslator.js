@@ -20,10 +20,14 @@ async function loadData() {
     }
 }
 
+
 // เติมรายการสำหรับ autosuggest (จากคอลัมน์ภาษาอังกฤษ = index 0)
 function populateSuggestions() {
     const dl = document.getElementById("suggestions");
-    const keys = [...new Set(glossaryData.map(r => r[0]).filter(v => v))];
+
+    // กรองข้อมูล: นำเฉพาะแถวที่คอลัมน์ 0 (อังกฤษ) และคอลัมน์ 1 (ไทย) มีข้อมูล
+    const keys = [...new Set(glossaryData.filter(r => r[0] && r[1]).map(r => r[0]))];
+    
     dl.innerHTML = ''; // เคลียร์รายการเก่า
     keys.forEach(k => {
         const o = document.createElement("option");
