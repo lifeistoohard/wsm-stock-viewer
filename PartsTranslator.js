@@ -38,10 +38,24 @@ function populateSuggestions() {
 // ฟังก์ชันคัดลอกข้อความ
 function copyToClipboard(text) {
     navigator.clipboard.writeText(text).then(() => {
-        alert("✅ คัดลอกคำแปลเรียบร้อยแล้ว!");
+        // แทนที่ alert() ด้วยการแสดงแถบแจ้งเตือน
+        showToast();
     }).catch(err => {
         console.error('ไม่สามารถคัดลอกข้อความได้:', err);
     });
+}
+
+// ฟังก์ชันแสดงแถบแจ้งเตือน (Toast Notification)
+function showToast() {
+    const toast = document.getElementById("notification-toast");
+    
+    // เพิ่มคลาส 'show' เพื่อให้แถบแจ้งเตือนแสดงผล
+    toast.className = "show";
+    
+    // ตั้งเวลาให้แถบแจ้งเตือนหายไปเอง
+    setTimeout(function(){ 
+        toast.className = toast.className.replace("show", ""); 
+    }, 3000); // 3000 มิลลิวินาที (3 วินาที)
 }
 
 // เพิ่ม Event Listener ให้กับปุ่มคัดลอกทั้งหมด
