@@ -20,13 +20,22 @@ async function loadData() {
     }
 }
 
-// เติมรายการสำหรับ autosuggest (จากคอลัมน์ภาษาอังกฤษ = index 0)
+// เติมรายการสำหรับ autosuggest (จากคอลัมน์ภาษาอังกฤษและภาษาไทย)
 function populateSuggestions() {
     const dl = document.getElementById("suggestions");
-    const keys = [...new Set(glossaryData.filter(r => r[0] && r[1]).map(r => r[0]))];
+    
+    // กรองข้อมูล: นำเฉพาะแถวที่คอลัมน์ 0 (อังกฤษ) และคอลัมน์ 1 (ไทย) มีข้อมูล
+    const completeEntries = glossaryData.filter(r => r[0] && r[1]);
+    
+    // ดึงคำศัพท์ภาษาอังกฤษและภาษาไทย
+    const englishKeys = completeEntries.map(r => r[0]);
+    const thaiKeys = completeEntries.map(r => r[1]);
+
+    // รวมคำศัพท์ทั้งหมดและลบคำที่ซ้ำกัน
+    const allKeys = [...new Set([...englishKeys, ...thaiKeys])].sort();
     
     dl.innerHTML = ''; // เคลียร์รายการเก่า
-    keys.forEach(k => {
+    allKeys.forEach(k => {
         const o = document.createElement("option");
         o.value = k;
         dl.appendChild(o);
