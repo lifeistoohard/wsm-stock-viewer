@@ -30,27 +30,36 @@
         .search-box {
             margin-bottom: 24px;
             text-align: center;
+            display: flex; /* ใช้ flexbox จัดเรียง input และ button */
+            justify-content: center;
         }
         .search-box input {
             font-size: 16px;
-            padding: 8px;
+            padding: 12px 20px; /* เพิ่มขนาด padding */
             width: 70%;
             border: 1px solid #ccc;
-            border-radius: 4px;
+            border-top-left-radius: 25px; /* ทำให้มุมซ้ายโค้ง */
+            border-bottom-left-radius: 25px;
+            border-right: none; /* ลบเส้นขอบขวา */
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1); /* เพิ่มเงา */
+            outline: none; /* ลบเส้นขอบเมื่อ focus */
         }
         .search-box button {
             font-size: 16px;
-            padding: 8px 12px;
-            margin-left: 8px;
+            padding: 12px 20px; /* เพิ่มขนาด padding */
+            margin-left: -1px; /* เลื่อนให้ติดกับ input */
             cursor: pointer;
-            border: none;
-            background: #1976d2;
-            color: white;
-            border-radius: 4px;
-            transition: background 0.2s ease;
+            border: 1px solid #ccc;
+            background: #f8f9fa; /* เปลี่ยนสีพื้นหลังปุ่ม */
+            color: #1976d2;
+            border-top-right-radius: 25px; /* ทำให้มุมขวาโค้ง */
+            border-bottom-right-radius: 25px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: background 0.2s ease, box-shadow 0.2s ease;
         }
         .search-box button:hover {
-            background: #125ea4;
+            background: #e8e8e8;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
         .results-container {
             margin-top: 24px;
@@ -79,7 +88,6 @@
             margin: 0;
             color: #555;
         }
-        /* สไตล์ใหม่สำหรับปุ่ม Copy */
         .copy-btn {
             font-size: 16px;
             padding: 8px 16px;
@@ -148,7 +156,7 @@
         <input
             type="text"
             id="search"
-            placeholder="🔍 พิมพ์ชื่ออะไหล่ภาษาอังกฤษหรือภาษไทย เช่น oil filter, เบรก..."
+            placeholder="🔍 พิมพ์ชื่ออะไหล่ภาษาอังกฤษหรือไทย เช่น oil filter, เบรก..."
             list="suggestions"
         />
         <datalist id="suggestions"></datalist>
