@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <title>Part Name Translator</title>
-     <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
@@ -28,16 +28,16 @@
         h1 {
             font-size: 24px;
             margin-bottom: 16px;
-            text-align: center;
+            /* No text-align: center; here */
         }
         /* กรอบค้นหาแบบ Google */
         .search-box {
             margin-bottom: 24px;
-            text-align: center;
             display: flex;
             justify-content: center;
         }
         .search-box input {
+            font-family: "Kanit", sans-serif; /* Add this line */
             font-size: 16px;
             padding: 12px 20px;
             width: 70%;
@@ -67,7 +67,7 @@
         .result-group {
             background: #fff;
             padding: 16px 24px;
-            border-radius: 25px; /* ทำให้กรอบผลลัพธ์โค้งมนเท่ากับกรอบค้นหา */
+            border-radius: 25px;
             box-shadow: 0 1px 4px rgba(0,0,0,0.1);
             margin-bottom: 16px;
             border-left: 6px solid #db2e33;
@@ -90,14 +90,15 @@
         }
         /* ปุ่ม Copy */
         .copy-btn {
+            font-family: "Kanit", sans-serif; /* Add this line for button text */
             font-size: 16px;
-            padding: 12px 20px; /* ทำให้ปุ่มมีขนาดเท่ากับปุ่มค้นหา */
+            padding: 12px 20px;
             margin-left: 20px;
             cursor: pointer;
             border: 1px solid #ccc;
             background: #fff;
             color: #1976d2;
-            border-radius: 25px; /* ทำให้ปุ่ม Copy โค้งมนเท่ากับกรอบอื่น ๆ */
+            border-radius: 25px;
             transition: background 0.2s ease, color 0.2s ease;
             white-space: nowrap;
             display: flex;
