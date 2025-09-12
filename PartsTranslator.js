@@ -44,25 +44,26 @@ document.getElementById("searchBtn").onclick = () => {
         return;
     }
 
-    const lowerCaseKw = kw.toLowerCase();
-
-    // ตรวจสอบว่าคำค้นหาเป็นภาษาไทยหรือไม่
+    // ตรวจสอบว่าคำค้นหาเป็นภาษาไทยหรือไม่ โดยเช็คจากตัวอักษร Unicode
     const isThai = /[\u0E00-\u0E7F]/.test(kw);
 
     let filtered = [];
     if (isThai) {
         // ถ้าเป็นภาษาไทย ให้หาคำแปลภาษาอังกฤษ
         filtered = glossaryData.filter(r => 
-            r[1] && r[1].toLowerCase().includes(lowerCaseKw)
+            // ตรวจสอบว่าคอลัมน์ภาษาไทย (index 1) มีข้อมูลและมีคำที่ตรงกัน
+            r[1] && r[1].includes(kw) 
         );
     } else {
+        const lowerCaseKw = kw.toLowerCase();
         // ถ้าเป็นภาษาอังกฤษ ให้หาคำแปลภาษาไทย
         filtered = glossaryData.filter(r => 
+            // ตรวจสอบว่าคอลัมน์ภาษาอังกฤษ (index 0) มีข้อมูลและมีคำที่ตรงกัน
             r[0] && r[0].toLowerCase().includes(lowerCaseKw)
         );
     }
 
-    displayResults(filtered, isThai); // ส่งค่า isThai ไปให้ฟังก์ชันแสดงผลด้วย
+    displayResults(filtered, isThai);
 };
 
 
