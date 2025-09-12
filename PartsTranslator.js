@@ -24,17 +24,14 @@ async function loadData() {
 function populateSuggestions() {
     const dl = document.getElementById("suggestions");
     
-    // กรองข้อมูล: นำเฉพาะแถวที่คอลัมน์ 0 (อังกฤษ) และคอลัมน์ 1 (ไทย) มีข้อมูล
     const completeEntries = glossaryData.filter(r => r[0] && r[1]);
     
-    // ดึงคำศัพท์ภาษาอังกฤษและภาษาไทย
     const englishKeys = completeEntries.map(r => r[0]);
     const thaiKeys = completeEntries.map(r => r[1]);
 
-    // รวมคำศัพท์ทั้งหมดและลบคำที่ซ้ำกัน
     const allKeys = [...new Set([...englishKeys, ...thaiKeys])].sort();
     
-    dl.innerHTML = ''; // เคลียร์รายการเก่า
+    dl.innerHTML = '';
     allKeys.forEach(k => {
         const o = document.createElement("option");
         o.value = k;
@@ -57,7 +54,7 @@ function showToast() {
     toast.className = "show";
     setTimeout(function(){ 
         toast.className = toast.className.replace("show", ""); 
-    }, 3000); // 3000 มิลลิวินาที (3 วินาที)
+    }, 3000);
 }
 
 // เพิ่ม Event Listener ให้กับปุ่มคัดลอกทั้งหมด
@@ -124,10 +121,12 @@ function displayResults(rows, isThaiSearch) {
         g.className = "result-group";
         
         g.innerHTML = `
-            <h2>${isThaiSearch ? thai : english}</h2>
-            <p>${translatedText}</p>
+            <div class="result-content">
+                <h2>${isThaiSearch ? thai : english}</h2>
+                <p>${translatedText}</p>
+            </div>
             <button class="copy-btn" data-translation="${textToCopy}">
-                📄 คัดลอกคำแปล
+                <span>📄</span> Copy
             </button>
         `;
         results.appendChild(g);
