@@ -12,7 +12,6 @@ async function loadData() {
         const res = await fetch(url);
         const obj = await res.json();
         glossaryData = obj.values || [];
-
         populateSuggestions();
     } catch (error) {
         console.error("Error fetching data:", error);
@@ -23,12 +22,9 @@ async function loadData() {
 // เติมรายการสำหรับ autosuggest (จากคอลัมน์ภาษาอังกฤษและภาษาไทย)
 function populateSuggestions() {
     const dl = document.getElementById("suggestions");
-    
     const completeEntries = glossaryData.filter(r => r[0] && r[1]);
-    
     const englishKeys = completeEntries.map(r => r[0]);
     const thaiKeys = completeEntries.map(r => r[1]);
-
     const allKeys = [...new Set([...englishKeys, ...thaiKeys])].sort();
     
     dl.innerHTML = '';
@@ -67,40 +63,6 @@ function addCopyButtonListeners() {
     });
 }
 
-// กด “ค้นหา” ด้วยคำ
-document.getElementById("searchBtn").onclick = () => {
-    const kw = document.getElementById("search").value.trim();
-    if (!kw) {
-        document.getElementById("results").innerHTML = `<p style="color:red; text-align: center;">❌ กรุณาพิมพ์คำที่ต้องการค้นหา</p>`;
-        return;
-    }
-
-    const isThai = /[\u0E00-\u0E7F]/.test(kw);
-
-    let filtered = [];
-    if (isThai) {
-        filtered = glossaryData.filter(r => 
-            r[1] && r[1].includes(kw)
-        );
-    } else {
-        const lowerCaseKw = kw.toLowerCase();
-        filtered = glossaryData.filter(r => 
-            r[0] && r[0].toLowerCase().includes(lowerCaseKw)
-        );
-    }
-
-    displayResults(filtered, isThai);
-};
-// เพิ่ม Event Listener เมื่อกดปุ่ม Enter
-document.getElementById("search").addEventListener("keypress", function(event) {
-    // เช็คว่าปุ่มที่กดคือ Enter (มี keyCode 13)
-    if (event.key === 'Enter') {
-        // ยกเลิกการทำงานเริ่มต้นของปุ่ม (เช่นการส่งฟอร์ม)
-        event.preventDefault(); 
-        // สั่งให้ปุ่มค้นหาถูกคลิก
-        document.getElementById("searchBtn").click();
-    }
-});
 // ฟังก์ชันแสดงผลลัพธ์
 function displayResults(rows, isThaiSearch) {
     const results = document.getElementById("results");
@@ -143,6 +105,39 @@ function displayResults(rows, isThaiSearch) {
     
     addCopyButtonListeners();
 }
+
+// กด “ค้นหา” ด้วยคำ
+document.getElementById("searchBtn").onclick = () => {
+    const kw = document.getElementById("search").value.trim();
+    if (!kw) {
+        document.getElementById("results").innerHTML = `<p style="color:red; text-align: center;">❌ กรุณาพิมพ์คำที่ต้องการค้นหา</p>`;
+        return;
+    }
+
+    const isThai = /[\u0E00-\u0E7F]/.test(kw);
+
+    let filtered = [];
+    if (isThai) {
+        filtered = glossaryData.filter(r => 
+            r[1] && r[1].includes(kw)
+        );
+    } else {
+        const lowerCaseKw = kw.toLowerCase();
+        filtered = glossaryData.filter(r => 
+            r[0] && r[0].toLowerCase().includes(lowerCaseKw)
+        );
+    }
+
+    displayResults(filtered, isThai);
+};
+
+// เพิ่ม Event Listener เมื่อกดปุ่ม Enter
+document.getElementById("search").addEventListener("keypress", function(event) {
+    if (event.key === 'Enter') {
+        event.preventDefault(); 
+        document.getElementById("searchBtn").click();
+    }
+});
 
 // เริ่มโหลดข้อมูลเมื่อเข้าหน้าเว็บ
 loadData();
