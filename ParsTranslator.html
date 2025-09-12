@@ -6,14 +6,14 @@
     <style>
         body {
             font-family: sans-serif;
-            background: #f2f2f2; /* ใช้สีพื้นหลังที่ดูสบายตาขึ้น */
+            background: #f2f2f2;
             padding: 2rem;
             max-width: 800px;
             margin: auto;
         }
         header {
             margin-bottom: 1.5rem;
-            text-align: center; /* จัดรูปภาพให้อยู่ตรงกลาง */
+            text-align: center;
         }
         header img {
             width: 100%;
@@ -29,7 +29,7 @@
         }
         .search-box {
             margin-bottom: 24px;
-            text-align: center; /* จัดให้อยู่ตรงกลาง */
+            text-align: center;
         }
         .search-box input {
             font-size: 16px;
@@ -52,7 +52,6 @@
         .search-box button:hover {
             background: #125ea4;
         }
-        
         .results-container {
             margin-top: 24px;
         }
@@ -62,17 +61,43 @@
             border-radius: 10px;
             box-shadow: 0 1px 4px rgba(0,0,0,0.1);
             margin-bottom: 16px;
-            border-left: 6px solid #db2e33; /* ใช้สีเดิม */
+            border-left: 6px solid #db2e33;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .result-content {
+            flex-grow: 1;
         }
         .result-group h2 {
             font-size: 20px;
             margin: 0 0 8px;
-            color: #1976d2; /* เปลี่ยนสีหัวข้อให้เข้ากับปุ่ม */
+            color: #1976d2;
         }
         .result-group p {
             font-size: 16px;
             margin: 0;
             color: #555;
+        }
+        /* สไตล์ใหม่สำหรับปุ่ม Copy */
+        .copy-btn {
+            font-size: 16px;
+            padding: 8px 16px;
+            margin-left: 20px;
+            cursor: pointer;
+            border: 1px solid #ccc;
+            background: #fff;
+            color: #1976d2;
+            border-radius: 8px;
+            transition: background 0.2s ease, color 0.2s ease;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .copy-btn:hover {
+            background: #e6e6e6;
+            color: #125ea4;
         }
         .footer {
             text-align: center;
@@ -89,28 +114,27 @@
             text-decoration: underline;
         }
         #notification-toast {
-    visibility: hidden; /* ซ่อนไว้ก่อน */
-    min-width: 250px;
-    background-color: #333;
-    color: #fff;
-    text-align: center;
-    border-radius: 6px;
-    padding: 16px;
-    position: fixed;
-    z-index: 1;
-    left: 50%;
-    transform: translateX(-50%);
-    bottom: 30px;
-    font-size: 17px;
-    opacity: 0;
-    transition: opacity 0.5s, bottom 0.5s;
-}
-
-#notification-toast.show {
-    visibility: visible; /* ทำให้มองเห็นได้ */
-    opacity: 1;
-    bottom: 50px;
-}
+            visibility: hidden;
+            min-width: 250px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 16px;
+            position: fixed;
+            z-index: 1;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: 30px;
+            font-size: 17px;
+            opacity: 0;
+            transition: opacity 0.5s, bottom 0.5s;
+        }
+        #notification-toast.show {
+            visibility: visible;
+            opacity: 1;
+            bottom: 50px;
+        }
     </style>
 </head>
 <body>
@@ -118,7 +142,7 @@
         <img src="trans_head.png" alt="ค้นหาคำแปลอะไหล่" />
     </header>
 
-    <h1>📋 ค้นหาคำแปลอะไหล่</h1>
+    <h1>📋 ค้นหาคำแปลอะไหล่ </h1>
 
     <div class="search-box">
         <input
