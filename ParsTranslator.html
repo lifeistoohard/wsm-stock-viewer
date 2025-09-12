@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8" />
-    <title>Part Translator</title>
+    <title>Part Name Translator</title>
     <style>
         body {
             font-family: sans-serif;
@@ -30,30 +30,28 @@
         .search-box {
             margin-bottom: 24px;
             text-align: center;
-            display: flex;
+            display: flex; /* ใช้ flexbox จัดเรียง input และ button */
             justify-content: center;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1); /* เพิ่มเงาที่กรอบค้นหาทั้งหมด */
-            border-radius: 25px; /* ทำให้กรอบค้นหาทั้งหมดโค้งมน */
-            overflow: hidden; /* ซ่อนส่วนเกิน */
         }
         .search-box input {
             font-size: 16px;
-            padding: 12px 20px;
+            padding: 12px 20px; /* เพิ่มขนาด padding */
             width: 70%;
             border: 1px solid #ccc;
-            border-right: none; /* ลบเส้นขอบขวา */
-            outline: none;
-            border-radius: 0; /* ลบ radius เดิมออกเพื่อใช้ของ .search-box */
+            border-top-left-radius: 25px; /* ทำให้มุมซ้ายโค้ง */
+            border-bottom-left-radius: 25px;
+            outline: none; /* ลบเส้นขอบเมื่อ focus */
         }
         .search-box button {
             font-size: 16px;
-            padding: 12px 20px;
+            padding: 12px 20px; /* เพิ่มขนาด padding */
             cursor: pointer;
             border: 1px solid #ccc;
-            background: #f8f9fa;
+            border-top-right-radius: 25px; /* ทำให้มุมขวาโค้ง */
+            border-bottom-right-radius: 25px;
+            background: #f8f9fa; /* เปลี่ยนสีพื้นหลังปุ่ม */
             color: #1976d2;
             transition: background 0.2s ease, box-shadow 0.2s ease;
-            border-radius: 0; /* ลบ radius เดิมออกเพื่อใช้ของ .search-box */
         }
         .search-box button:hover {
             background: #e8e8e8;
@@ -147,7 +145,7 @@
         <img src="trans_head.png" alt="ค้นหาคำแปลอะไหล่" />
     </header>
 
-    <h1>📋 ค้นหาคำแปลอะไหล่</h1>
+    <h1>📋 ค้นหาคำแปลอะไหล่ </h1>
 
     <div class="search-box">
         <input
@@ -177,6 +175,6 @@
     </div>
 
     <script src="PartsTranslator.js"></script>
-    <div id="notification-toast">✅ คัดลอกคำแปลเรียบร้อยแล้ว!</div>
+    <div id="notification-toast">✅ คัดลอกแล้ว!</div>
 </body>
 </html>
