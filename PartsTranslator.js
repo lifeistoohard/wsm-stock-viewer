@@ -23,8 +23,6 @@ async function loadData() {
 // เติมรายการสำหรับ autosuggest (จากคอลัมน์ภาษาอังกฤษ = index 0)
 function populateSuggestions() {
     const dl = document.getElementById("suggestions");
-
-    // กรองข้อมูล: นำเฉพาะแถวที่คอลัมน์ 0 (อังกฤษ) และคอลัมน์ 1 (ไทย) มีข้อมูล
     const keys = [...new Set(glossaryData.filter(r => r[0] && r[1]).map(r => r[0]))];
     
     dl.innerHTML = ''; // เคลียร์รายการเก่า
@@ -38,7 +36,6 @@ function populateSuggestions() {
 // ฟังก์ชันคัดลอกข้อความ
 function copyToClipboard(text) {
     navigator.clipboard.writeText(text).then(() => {
-        // แทนที่ alert() ด้วยการแสดงแถบแจ้งเตือน
         showToast();
     }).catch(err => {
         console.error('ไม่สามารถคัดลอกข้อความได้:', err);
@@ -48,11 +45,7 @@ function copyToClipboard(text) {
 // ฟังก์ชันแสดงแถบแจ้งเตือน (Toast Notification)
 function showToast() {
     const toast = document.getElementById("notification-toast");
-    
-    // เพิ่มคลาส 'show' เพื่อให้แถบแจ้งเตือนแสดงผล
     toast.className = "show";
-    
-    // ตั้งเวลาให้แถบแจ้งเตือนหายไปเอง
     setTimeout(function(){ 
         toast.className = toast.className.replace("show", ""); 
     }, 3000); // 3000 มิลลิวินาที (3 วินาที)
@@ -76,18 +69,15 @@ document.getElementById("searchBtn").onclick = () => {
         return;
     }
 
-    // ตรวจสอบว่าคำค้นหาเป็นภาษาไทยหรือไม่
     const isThai = /[\u0E00-\u0E7F]/.test(kw);
 
     let filtered = [];
     if (isThai) {
-        // ถ้าเป็นภาษาไทย ให้หาคำแปลภาษาอังกฤษ
         filtered = glossaryData.filter(r => 
             r[1] && r[1].includes(kw)
         );
     } else {
         const lowerCaseKw = kw.toLowerCase();
-        // ถ้าเป็นภาษาอังกฤษ ให้หาคำแปลภาษาไทย
         filtered = glossaryData.filter(r => 
             r[0] && r[0].toLowerCase().includes(lowerCaseKw)
         );
@@ -106,7 +96,6 @@ function displayResults(rows, isThaiSearch) {
         return;
     }
 
-    // สร้างกล่องสำหรับแต่ละผลลัพธ์
     rows.forEach(r => {
         const english = r[0] || "N/A";
         const thai = r[1] || "-";
@@ -135,7 +124,6 @@ function displayResults(rows, isThaiSearch) {
         results.appendChild(g);
     });
     
-    // หลังจากเพิ่มผลลัพธ์แล้ว ให้เพิ่ม event listener ให้กับทุกปุ่ม
     addCopyButtonListeners();
 }
 
