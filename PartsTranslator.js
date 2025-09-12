@@ -91,7 +91,16 @@ document.getElementById("searchBtn").onclick = () => {
 
     displayResults(filtered, isThai);
 };
-
+// เพิ่ม Event Listener เมื่อกดปุ่ม Enter
+document.getElementById("search").addEventListener("keypress", function(event) {
+    // เช็คว่าปุ่มที่กดคือ Enter (มี keyCode 13)
+    if (event.key === 'Enter') {
+        // ยกเลิกการทำงานเริ่มต้นของปุ่ม (เช่นการส่งฟอร์ม)
+        event.preventDefault(); 
+        // สั่งให้ปุ่มค้นหาถูกคลิก
+        document.getElementById("searchBtn").click();
+    }
+});
 // ฟังก์ชันแสดงผลลัพธ์
 function displayResults(rows, isThaiSearch) {
     const results = document.getElementById("results");
