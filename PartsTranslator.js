@@ -38,22 +38,36 @@ function populateSuggestions() {
 
 // กด “ค้นหา” ด้วยคำ
 document.getElementById("searchBtn").onclick = () => {
-    const kw = document.getElementById("search").value.trim().toLowerCase();
+    const kw = document.getElementById("search").value.trim();
     if (!kw) {
-        document.getElementById("results").innerHTML = `<p style="color:red;">❌ กรุณาพิมพ์คำที่ต้องการค้นหา</p>`;
+        document.getElementById("results").innerHTML = `<p style="color:red; text-align: center;">❌ กรุณาพิมพ์คำที่ต้องการค้นหา</p>`;
         return;
     }
 
-    // ค้นหาคำที่ตรงกับคำที่พิมพ์
-    const filtered = glossaryData.filter(r =>
-        r[0] && r[0].toLowerCase().includes(kw)
-    );
+    const lowerCaseKw = kw.toLowerCase();
 
-    displayResults(filtered);
+    // ตรวจสอบว่าคำค้นหาเป็นภาษาไทยหรือไม่
+    const isThai = /[\u0E00-\u0E7F]/.test(kw);
+
+    let filtered = [];
+    if (isThai) {
+        // ถ้าเป็นภาษาไทย ให้หาคำแปลภาษาอังกฤษ
+        filtered = glossaryData.filter(r => 
+            r[1] && r[1].toLowerCase().includes(lowerCaseKw)
+        );
+    } else {
+        // ถ้าเป็นภาษาอังกฤษ ให้หาคำแปลภาษาไทย
+        filtered = glossaryData.filter(r => 
+            r[0] && r[0].toLowerCase().includes(lowerCaseKw)
+        );
+    }
+
+    displayResults(filtered, isThai); // ส่งค่า isThai ไปให้ฟังก์ชันแสดงผลด้วย
 };
 
+
 // ฟังก์ชันแสดงผลลัพธ์
-function displayResults(rows) {
+function displayResults(rows, isThaiSearch) {
     const results = document.getElementById("results");
     results.innerHTML = "";
 
@@ -68,14 +82,23 @@ function displayResults(rows) {
         const thai = r[1] || "-";
 
         const g = document.createElement("div");
-        g.className = "result-group"; // แก้ไขจาก "group" เป็น "result-group"
-        g.innerHTML = `
-            <h2>${english}</h2>
-            <p><strong>คำแปล:</strong> ${thai}</p>
-        `;
+        g.className = "result-group";
+        
+        // สลับการแสดงผลตามภาษาที่ใช้ค้นหา
+        if (isThaiSearch) {
+            g.innerHTML = `
+                <h2>${thai}</h2>
+                <p><strong>คำแปล:</strong> ${english}</p>
+            `;
+        } else {
+            g.innerHTML = `
+                <h2>${english}</h2>
+                <p><strong>คำแปล:</strong> ${thai}</p>
+            `;
+        }
+
         results.appendChild(g);
     });
 }
-
 // เริ่มโหลดข้อมูลเมื่อเข้าหน้าเว็บ
 loadData();
