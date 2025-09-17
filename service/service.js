@@ -78,11 +78,10 @@ function renderList(data) {
                 item.className = "bulletin-item";
                 item.innerHTML = `
                     <a href="${b.file}" target="_blank">${b.title}</a>
-                    <div class="bulletin-meta-row"> <div class="meta-tags">
-                            ${(b.tags || []).map(tag => `<span class="tag" data-tag="${tag}" style="cursor:pointer;">${tag}</span>`).join(" ")}
-                        </div>
-                        <span class="bulletin-date">${b.date}</span>
+                    <div class="meta-tags">
+                        ${(b.tags || []).map(tag => `<span class="tag" data-tag="${tag}" style="cursor:pointer;">${tag}</span>`).join(" ")}
                     </div>
+                    <span class="bulletin-date">${b.date}</span>
                 `;
                 itemsWrapper.appendChild(item);
             });
