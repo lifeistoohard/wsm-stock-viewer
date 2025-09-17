@@ -1,5 +1,5 @@
 // --- กำหนดข้อมูล Google Sheets API
-const SHEET_ID = "19pJJpiDKatYgUmO_43SUcTYaqfhwcQwYiuxn-d8";
+const SHEET_ID = "19pJJpiDKatYgUmO_43SUyECxqTYaqfhwcQwYiuxn-d8"; // <-- แก้ไข SHEET_ID ให้ถูกต้อง
 const API_KEY  = "AIzaSyAki5uoqv3JpG7sqZ7crpaALomcUxlD72k";
 const RANGE    = "Bulletin!A2:E"; // <-- เปลี่ยน Range ให้ชี้ไปที่คอลัมน์ E
 
