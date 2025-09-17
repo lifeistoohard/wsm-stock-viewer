@@ -1,7 +1,7 @@
 // --- กำหนดข้อมูล Google Sheets API
-const SHEET_ID = "19pJJpiDKatYgUmO_43SUyECxqTYaqfhwcQwYiuxn-d8";
-const API_KEY  = "AIzaSyAki5uoqv3JpG7sqZ7crpaALomcUxlD72k";
-const RANGE    = "Bulletin!A2:D";
+const SHEET_ID = "19pJJpiDKatYgUmO_43SUcTYaqfhwcQwYiuxn-d8";
+const API_KEY  = "AIzaSyAki5uoqv3JpG7sqZ7crpaALomcUxlD72k";
+const RANGE    = "Bulletin!A2:E"; // <-- เปลี่ยน Range ให้ชี้ไปที่คอลัมน์ E
 
 let bulletins = [];
 
@@ -17,11 +17,13 @@ async function loadData() {
             title: row[0] || '',
             year: parseInt(row[1], 10) || 0,
             file: row[2] || '',
-            tags: (row[3] || '').split(',').map(tag => tag.trim()).filter(tag => tag)
+            tags: (row[3] || '').split(',').map(tag => tag.trim()).filter(tag => tag),
+            date: row[4] || '' // ดึงข้อมูลจากคอลัมน์ E
         }));
 
         renderList(bulletins);
         setupSearch();
+        hideBackButton();
 
     } catch (error) {
         console.error("Error fetching data:", error);
@@ -75,10 +77,13 @@ function renderList(data) {
                 const item = document.createElement("div");
                 item.className = "bulletin-item";
                 item.innerHTML = `
-                    <a href="${b.file}" target="_blank">${b.title}</a>
-                    <div class="meta-tags">
-                        ${(b.tags || []).map(tag => `<span class="tag" data-tag="${tag}" style="cursor:pointer;">${tag}</span>`).join(" ")}
+                    <div>
+                        <a href="${b.file}" target="_blank">${b.title}</a>
+                        <div class="meta-tags">
+                            ${(b.tags || []).map(tag => `<span class="tag" data-tag="${tag}" style="cursor:pointer;">${tag}</span>`).join(" ")}
+                        </div>
                     </div>
+                    <span class="bulletin-date">${b.date}</span>
                 `;
                 itemsWrapper.appendChild(item);
             });
@@ -123,7 +128,6 @@ function setupSearch() {
         if (e.key === "Enter") doSearch();
     });
     
-    // เพิ่ม Event Listener ให้กับปุ่ม "กลับ"
     document.getElementById("backBtn").addEventListener("click", () => {
         document.getElementById("searchInput").value = "";
         renderList(bulletins);
@@ -139,7 +143,7 @@ function enableTagSearch() {
                 (b.tags || []).some(t => t.toLowerCase() === selectedTag)
             );
             renderList(filtered);
-            showBackButton(); // เพิ่มบรรทัดนี้
+            showBackButton();
         });
     });
 }
