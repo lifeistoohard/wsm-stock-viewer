@@ -1,14 +1,11 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    
     <meta charset="UTF-8" />
     <title>Service Bulletins</title>
     <script>
         const password = "tsetss"; // <<< ตั้งรหัสผ่านตรงนี้
-
         const userInput = prompt("🔒 กรุณาใส่รหัสผ่านเพื่อเข้าใช้งาน:");
-
         if (userInput !== password) {
             alert("❌ รหัสผ่านไม่ถูกต้อง!");
             window.location.href = "https://www.google.com";
@@ -64,6 +61,13 @@
             border-radius: 8px;
             box-shadow: 0 1px 4px rgba(0,0,0,0.1);
             margin-bottom: 12px;
+            display: flex; /* Flexbox for alignment */
+            justify-content: space-between; /* Space out content and date */
+            align-items: center;
+        }
+        .bulletin-content {
+            flex-grow: 1; /* Allows the content to fill available space */
+            margin-right: 10px;
         }
         .bulletin-item a {
             text-decoration: none;
@@ -91,7 +95,11 @@
         .tag:hover {
             background: #6c6d6d;
         }
-
+        .bulletin-date { /* Style for the date */
+            font-size: 12px;
+            color: #888;
+            white-space: nowrap;
+        }
         .footer {
             text-align: center;
             font-size: 14px;
