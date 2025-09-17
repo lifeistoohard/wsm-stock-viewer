@@ -23,6 +23,7 @@ async function loadData() {
 
         renderList(bulletins);
         setupSearch();
+        hideBackButton();
 
     } catch (error) {
         console.error("Error fetching data:", error);
@@ -76,13 +77,12 @@ function renderList(data) {
                 const item = document.createElement("div");
                 item.className = "bulletin-item";
                 item.innerHTML = `
-                    <div>
-                        <a href="${b.file}" target="_blank">${b.title}</a>
-                        <div class="meta-tags">
+                    <a href="${b.file}" target="_blank">${b.title}</a>
+                    <div class="bulletin-meta-row"> <div class="meta-tags">
                             ${(b.tags || []).map(tag => `<span class="tag" data-tag="${tag}" style="cursor:pointer;">${tag}</span>`).join(" ")}
                         </div>
+                        <span class="bulletin-date">${b.date}</span>
                     </div>
-                    <span class="bulletin-date">${b.date}</span>
                 `;
                 itemsWrapper.appendChild(item);
             });
