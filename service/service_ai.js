@@ -10,7 +10,7 @@ function setupAiSearch() {
             searchResultsContainer.innerHTML = "กำลังค้นหาและวิเคราะห์ข้อมูล... กรุณารอสักครู่";
 
             // API Key ของคุณ
-            const YOUR_API_KEY = "AQ.Ab8RN6I-Ehe9q4LWSNCX5B_3OLERlsG5KT__1kN-TqmGdD5YAA"; 
+            const YOUR_API_KEY = ""; 
             
             try {
                 // System Prompt ที่เรากำหนดกฎเกณฑ์ไว้
