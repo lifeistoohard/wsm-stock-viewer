@@ -7,128 +7,177 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
+        * {
+            box-sizing: border-box;
+        }
         body {
             font-family: "Kanit", sans-serif;
-            background: #f2f2f2;
-            padding: 2rem;
-            max-width: 800px;
-            margin: auto;
+            /* พื้นหลังสีฟ้าอ่อนตามรูปอ้างอิง */
+            background-color: #e6eeff; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .card {
+            background: #ffffff;
+            width: 100%;
+            max-width: 600px;
+            padding: 40px 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            text-align: center;
         }
         h1 {
-            font-size: 26px;
-            text-align: center;
-            color: #1976d2;
+            font-size: 24px;
+            color: #333;
+            margin-top: 0;
             margin-bottom: 24px;
         }
         
-        /* สไตล์ของช่องกรอกรหัสแบบแยกช่อง */
-        .search-container {
+        /* สไตล์ปุ่มเลือกปี (Toggle) */
+        .year-selector {
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
+            background: #f0f4f8;
+            border-radius: 8px;
+            padding: 4px;
             margin-bottom: 30px;
         }
+        .year-selector label {
+            flex: 1;
+            text-align: center;
+            padding: 10px 0;
+            font-size: 16px;
+            font-weight: 500;
+            color: #666;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+        .year-selector input[type="radio"] {
+            display: none;
+        }
+        /* เมื่อถูกเลือก ให้พื้นหลังเป็นสีขาวและข้อความสีน้ำเงิน */
+        .year-selector input[type="radio"]:checked + label {
+            background: #ffffff;
+            color: #2563eb;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        /* ช่องกรอกรหัส */
         .code-inputs {
             display: flex;
             gap: 8px;
             justify-content: center;
             flex-wrap: wrap;
+            margin-bottom: 30px;
         }
         .code-box {
-            width: 45px;
-            height: 55px;
-            font-size: 24px;
+            width: 42px;
+            height: 52px;
+            font-size: 20px;
             font-family: "Kanit", sans-serif;
             font-weight: bold;
             text-align: center;
-            border: 2px solid #ccc;
-            border-radius: 8px;
+            /* สีพื้นหลังกล่องแบบในรูป */
+            background-color: #e2e8f0; 
+            border: 2px solid transparent;
+            border-radius: 6px;
             text-transform: uppercase;
             outline: none;
-            color: #db2e33;
-            transition: border-color 0.2s, box-shadow 0.2s;
+            color: #333;
+            transition: all 0.2s;
         }
         .code-box:focus {
-            border-color: #1976d2;
-            box-shadow: 0 0 8px rgba(25, 118, 210, 0.3);
+            background-color: #ffffff;
+            border-color: #2563eb;
         }
-        /* ช่องเครื่องยนต์กว้างกว่าเพื่อนเพราะมี 2 ตัว */
         .engine-box {
-            width: 65px; 
+            width: 55px; 
         }
 
-        .search-container button {
+        /* ปุ่มสีน้ำเงิน */
+        .verify-btn {
             font-family: "Kanit", sans-serif;
             font-size: 18px;
-            padding: 12px 32px;
+            font-weight: bold;
+            padding: 14px 24px;
+            width: 100%;
             cursor: pointer;
             border: none;
-            background: #db2e33;
+            background: #3b82f6;
             color: white;
-            border-radius: 25px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: background 0.2s ease, transform 0.1s;
+            border-radius: 8px;
+            transition: background 0.2s ease;
         }
-        .search-container button:hover {
-            background: #b72125;
-            transform: translateY(-2px);
+        .verify-btn:hover {
+            background: #2563eb;
         }
-        
-        /* สไตล์ผลลัพธ์ */
+
+        .error-msg {
+            color: #ef4444;
+            font-size: 14px;
+            margin-top: 16px;
+            min-height: 20px;
+        }
+
+        /* ผลลัพธ์ */
         .result-container {
-            background: #fff;
-            padding: 24px;
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            margin-top: 30px;
             display: none;
+            text-align: left;
         }
         .result-header {
-            font-size: 24px;
+            font-size: 20px;
             font-weight: bold;
             text-align: center;
             margin-bottom: 20px;
-            color: #333;
-            border-bottom: 2px solid #efefef;
+            color: #2563eb;
+            border-bottom: 2px dashed #ccc;
             padding-bottom: 10px;
-            letter-spacing: 2px;
+            letter-spacing: 1px;
         }
         .result-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 16px;
+            gap: 12px;
         }
         .result-item {
-            background: #f8f9fa;
-            padding: 12px 16px;
-            border-radius: 8px;
-            border-left: 4px solid #1976d2;
+            background: #f8fafc;
+            padding: 12px;
+            border-radius: 6px;
+            border-left: 4px solid #3b82f6;
         }
         .result-item span.label {
-            font-size: 14px;
-            color: #888;
+            font-size: 12px;
+            color: #64748b;
             display: block;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
         }
         .result-item span.value {
-            font-size: 16px;
+            font-size: 14px;
             font-weight: bold;
-            color: #222;
-        }
-        .error-msg {
-            color: red;
-            text-align: center;
-            font-size: 16px;
-            margin-bottom: 20px;
+            color: #0f172a;
         }
     </style>
 </head>
 <body>
 
-    <h1>🚙 ถอดรหัส TF Model Code</h1>
+    <div class="card">
+        <h1>ถอดรหัส TF Model</h1>
 
-    <!-- เปลี่ยนเป็นช่องกรอก 10 ช่องตามหลักของรหัส -->
-    <div class="search-container">
+        <!-- ตัวเลือกช่วงปี -->
+        <div class="year-selector">
+            <input type="radio" id="yearBefore" name="yearGroup" value="before2020">
+            <label for="yearBefore">ก่อนรุ่นปี 2020</label>
+            
+            <input type="radio" id="yearAfter" name="yearGroup" value="after2020" checked>
+            <label for="yearAfter">หลังรุ่นปี 2020</label>
+        </div>
+
+        <!-- ช่องกรอกรหัส 10 ช่อง -->
         <div class="code-inputs" id="codeInputContainer">
             <input type="text" maxlength="1" class="code-box" placeholder="T">
             <input type="text" maxlength="1" class="code-box" placeholder="F">
@@ -141,15 +190,14 @@
             <input type="text" maxlength="1" class="code-box" placeholder="M">
             <input type="text" maxlength="1" class="code-box" placeholder="T">
         </div>
-        <button id="searchBtn">ถอดรหัส</button>
-    </div>
-    
-    <div id="errorMsg" class="error-msg"></div>
 
-    <div id="resultContainer" class="result-container">
-        <div class="result-header" id="displayCode">TFS46JCNHMT</div>
-        <div class="result-grid" id="resultGrid">
-            <!-- ผลลัพธ์จะถูกแทรกที่นี่ผ่าน JS -->
+        <button id="searchBtn" class="verify-btn">ตรวจสอบข้อมูล</button>
+        <div id="errorMsg" class="error-msg"></div>
+
+        <!-- กล่องผลลัพธ์ -->
+        <div id="resultContainer" class="result-container">
+            <div class="result-header" id="displayCode"></div>
+            <div class="result-grid" id="resultGrid"></div>
         </div>
     </div>
 
