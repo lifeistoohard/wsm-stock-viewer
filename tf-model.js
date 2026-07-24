@@ -64,12 +64,12 @@ radioButtons.forEach(radio => {
 });
 
 // ----------------------------------------------------
-// ระบบพิมพ์แล้วเลื่อนช่องอัตโนมัติ (เสถียรขึ้น)
+// ระบบพิมพ์ เลื่อนช่อง และรองรับการ Copy/Paste
 // ----------------------------------------------------
 const inputs = document.querySelectorAll('.code-box');
 
 inputs.forEach((input, index) => {
-    // ใช้ input event สำหรับการเดินหน้า
+    // 1. จัดการตอนพิมพ์ปกติ
     input.addEventListener('input', () => {
         input.value = input.value.toUpperCase();
         
@@ -80,19 +80,55 @@ inputs.forEach((input, index) => {
         }
     });
 
-    // ใช้ keydown เพื่อดักจับ Backspace ก่อนที่ค่าจะถูกเปลี่ยน
+    // 2. จัดการปุ่ม Backspace และ Enter
     input.addEventListener('keydown', (e) => {
         if (e.key === 'Backspace') {
-            // ถ้าช่องปัจจุบันว่างเปล่า แล้วกดลบ ให้ถอยไปช่องก่อนหน้าและเคลียร์ค่าช่องนั้น
             if (input.value === '') {
                 if (index > 0) {
                     inputs[index - 1].focus();
-                    inputs[index - 1].value = ''; // เคลียร์ค่าให้เลยเพื่อความสมูท
-                    e.preventDefault(); // ป้องกันพฤติกรรมลบซ้ำซ้อนของเบราว์เซอร์
+                    inputs[index - 1].value = ''; 
+                    e.preventDefault(); 
                 }
             }
         } else if (e.key === 'Enter') {
             decodeModelCode();
+        }
+    });
+
+    // 3. จัดการตอนผู้ใช้กด Paste (วางข้อมูล)
+    input.addEventListener('paste', (e) => {
+        // หยุดพฤติกรรมการวางแบบปกติของเบราว์เซอร์
+        e.preventDefault();
+        
+        // ดึงข้อความที่อยู่ใน Clipboard มา (ทำให้เป็นตัวพิมพ์ใหญ่ และตัดช่องว่างทิ้ง)
+        let pastedText = (e.clipboardData || window.clipboardData).getData('text').toUpperCase().trim();
+        
+        // ตัวแปรสำหรับนับตำแหน่งตัวอักษรของข้อความที่ถูกวาง
+        let currentPos = 0;
+
+        // วนลูปแจกจ่ายตัวอักษรลงในแต่ละช่อง
+        for (let i = 0; i < inputs.length; i++) {
+            // ถ้าข้อความที่ก๊อปมาหมดแล้ว ให้หยุดวนลูป
+            if (currentPos >= pastedText.length) break;
+
+            // ดูว่าช่องนี้รับได้กี่ตัวอักษร (ช่องเครื่องยนต์รับได้ 2 ช่องอื่นรับได้ 1)
+            let maxLen = inputs[i].maxLength;
+            
+            // หั่นข้อความตามจำนวนที่ช่องนั้นรับได้
+            let textForBox = pastedText.substring(currentPos, currentPos + maxLen);
+            
+            // ใส่ข้อความลงไปในช่อง และโฟกัสที่ช่องนั้น
+            inputs[i].value = textForBox;
+            inputs[i].focus();
+            
+            // ขยับตำแหน่งไปตามจำนวนตัวอักษรที่ใส่ไปแล้ว
+            currentPos += maxLen;
+        }
+
+        // ถ้ายาวครบ 11 ตัวอักษร ให้กดปุ่มถอดรหัสให้เลยอัตโนมัติ (เพิ่มความสะดวก)
+        if (currentPos === 11) {
+            // หน่วงเวลาเล็กน้อยเพื่อให้ UI อัปเดตช่องครบก่อน
+            setTimeout(decodeModelCode, 100);
         }
     });
 });
