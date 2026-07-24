@@ -1,4 +1,4 @@
-// กำหนดข้อมูล Google Sheets API (จากระบบเดิมของคุณ)
+// กำหนดข้อมูล Google Sheets API
 const SHEET_ID = "19pJJpiDKatYgUmO_43SUyECxqTYaqfhwcQwYiuxn-d8"; 
 const API_KEY  = "AIzaSyAki5uoqv3JpG7sqZ7crpaALomcUxlD72k"; 
 const RANGE    = "'TF_Model code'!A1:J"; 
@@ -15,19 +15,14 @@ async function loadData() {
         const rows = obj.values || [];
 
         if (rows.length > 0) {
-            headers = rows[0]; // แถวแรกคือชื่อหัวข้อ
-            
-            // สร้าง Array เตรียมเก็บข้อมูลแต่ละคอลัมน์ 10 ตำแหน่ง
+            headers = rows[0]; 
             modelDataMap = Array.from({ length: 10 }, () => ({}));
 
-            // วนลูปอ่านข้อมูลตั้งแต่แถวที่ 2 เป็นต้นไป
             for (let i = 1; i < rows.length; i++) {
                 for (let col = 0; col < 10; col++) {
                     let cellValue = rows[i][col];
                     if (cellValue) {
-                        // แยกเอาเฉพาะตัวอักษรหน้าเครื่องหมาย ":" มาเป็น Key
                         let key = cellValue.split(':')[0].trim();
-                        // เก็บค่าทั้งก้อนไว้แสดงผล
                         modelDataMap[col][key] = cellValue; 
                     }
                 }
@@ -39,9 +34,45 @@ async function loadData() {
     }
 }
 
+// ----------------------------------------------------
+// ระบบพิมพ์แล้วเลื่อนช่องอัตโนมัติ (Auto-advance)
+// ----------------------------------------------------
+const inputs = document.querySelectorAll('.code-box');
+
+inputs.forEach((input, index) => {
+    // เมื่อมีการพิมพ์
+    input.addEventListener('input', (e) => {
+        // บังคับพิมพ์ใหญ่
+        input.value = input.value.toUpperCase();
+        
+        // ถ้าพิมพ์ครบจำนวน maxlength ของช่องนั้น ให้เลื่อนไปช่องถัดไป
+        if (input.value.length === input.maxLength) {
+            if (index < inputs.length - 1) {
+                inputs[index + 1].focus();
+            }
+        }
+    });
+
+    // เมื่อมีการกดปุ่มบนคีย์บอร์ด (จัดการ Backspace)
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace' && input.value === '') {
+            // ถ้าช่องว่างอยู่แล้วกด Backspace ให้ถอยไปช่องก่อนหน้า
+            if (index > 0) {
+                inputs[index - 1].focus();
+                // รอให้โฟกัสก่อนค่อยลบตัวอักษรของช่องก่อนหน้า
+                setTimeout(() => {
+                    inputs[index - 1].value = inputs[index - 1].value.slice(0, -1);
+                }, 10);
+            }
+        } else if (e.key === 'Enter') {
+            // กด Enter เพื่อถอดรหัส
+            decodeModelCode();
+        }
+    });
+});
+
 // ฟังก์ชันถอดรหัส
 function decodeModelCode() {
-    const input = document.getElementById("searchInput").value.trim().toUpperCase();
     const errorMsg = document.getElementById("errorMsg");
     const resultContainer = document.getElementById("resultContainer");
     const resultGrid = document.getElementById("resultGrid");
@@ -50,31 +81,35 @@ function decodeModelCode() {
     resultGrid.innerHTML = "";
     resultContainer.style.display = "none";
 
-    if (input.length !== 11) {
-        errorMsg.innerText = "❌ กรุณากรอกรหัส Model ให้ครบ 11 ตัวอักษร (เช่น TFS46JCNHMT)";
+    let fullCode = "";
+    let codeParts = [];
+    let isValid = true;
+
+    // กวาดข้อมูลจากทุกช่อง
+    inputs.forEach(input => {
+        let val = input.value.trim().toUpperCase();
+        fullCode += val;
+        codeParts.push(val);
+        
+        // ตรวจสอบว่ากรอกครบตาม MaxLength ของแต่ละช่องไหม
+        if (val.length !== input.maxLength) {
+            isValid = false;
+        }
+    });
+
+    // ตรวจสอบความถูกต้อง
+    if (!isValid || fullCode.length !== 11) {
+        errorMsg.innerText = "❌ กรุณากรอกรหัส Model ให้ครบทุกช่องรวม 11 ตัวอักษร";
         return;
     }
 
-    // หั่น string ตามตำแหน่ง (11 ตัวอักษร แบ่งเป็น 10 หมวด)
-    const codeParts = [
-        input.substring(0, 1),   // 0: ปิกอัพ (T)
-        input.substring(1, 2),   // 1: น้ำหนัก (F)
-        input.substring(2, 3),   // 2: ระบบขับเคลื่อน (S)
-        input.substring(3, 5),   // 3: เครื่องยนต์ (46) -> ใช้ 2 ตัวอักษร
-        input.substring(5, 6),   // 4: ฐานล้อ (J)
-        input.substring(6, 7),   // 5: ประเภทห้องโดยสาร (C)
-        input.substring(7, 8),   // 6: ระบบเกียร์ (N)
-        input.substring(8, 9),   // 7: ช่วงล่าง (H)
-        input.substring(9, 10),  // 8: เกรด (M)
-        input.substring(10, 11)  // 9: รุ่นปี (T)
-    ];
+    // แสดงรหัสเต็มๆ ด้านบน
+    document.getElementById("displayCode").innerText = fullCode;
 
-    document.getElementById("displayCode").innerText = "ถอดรหัส: " + input;
-
-    // สร้างกล่องแสดงผลทีละหมวด
+    // สร้างกล่องแสดงผลทีละหมวด (ดึงข้อมูลจาก Array codeParts ที่แยกตามช่องไว้แล้ว)
     for (let i = 0; i < 10; i++) {
         let code = codeParts[i];
-        let decodedValue = modelDataMap[i][code] || `${code} (ไม่พบข้อมูลอ้างอิง)`;
+        let decodedValue = modelDataMap[i][code] || `<span style="color:red;">${code} (ไม่พบรหัสนี้)</span>`;
         
         let itemDiv = document.createElement("div");
         itemDiv.className = "result-item";
@@ -88,11 +123,8 @@ function decodeModelCode() {
     resultContainer.style.display = "block";
 }
 
-// ผูกปุ่มและ Enter กับฟังก์ชันค้นหา
+// ผูกปุ่มกดเข้ากับฟังก์ชัน
 document.getElementById("searchBtn").addEventListener("click", decodeModelCode);
-document.getElementById("searchInput").addEventListener("keypress", function(e) {
-    if (e.key === "Enter") decodeModelCode();
-});
 
-// โหลดข้อมูลเมื่อเปิดหน้าเว็บ
+// โหลดข้อมูล
 loadData();
