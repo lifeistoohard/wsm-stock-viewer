@@ -1,19 +1,30 @@
 // กำหนดข้อมูล Google Sheets API
 const SHEET_ID = "19pJJpiDKatYgUmO_43SUyECxqTYaqfhwcQwYiuxn-d8"; 
 const API_KEY  = "AIzaSyAki5uoqv3JpG7sqZ7crpaALomcUxlD72k"; 
-const RANGE    = "'TF_Model code'!A1:J"; 
+
+// 🔴 เปลี่ยนชื่อ Sheet ตรงนี้ให้ตรงกับที่คุณสร้างไว้ใน Google Sheets 
+const RANGE_AFTER_2020  = "'TF_Model code'!A1:J"; 
+const RANGE_BEFORE_2020 = "'TF_Model code_Before2020'!A1:J"; // <--- สมมติว่าสร้างอีก Sheet ชื่อนี้
 
 let modelDataMap = [];
 let headers = [];
+let currentRange = RANGE_AFTER_2020; // ค่าเริ่มต้น
 
-// โหลดข้อมูลจาก Google Sheets
+// ฟังก์ชันโหลดข้อมูลจาก Google Sheets
 async function loadData() {
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}?key=${API_KEY}`;
+    const errorMsg = document.getElementById("errorMsg");
+    errorMsg.innerText = "กำลังโหลดข้อมูล...";
+    
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${currentRange}?key=${API_KEY}`;
     try {
         const res = await fetch(url);
         const obj = await res.json();
-        const rows = obj.values || [];
+        
+        if (obj.error) {
+            throw new Error(obj.error.message);
+        }
 
+        const rows = obj.values || [];
         if (rows.length > 0) {
             headers = rows[0]; 
             modelDataMap = Array.from({ length: 10 }, () => ({}));
@@ -27,25 +38,41 @@ async function loadData() {
                     }
                 }
             }
+            errorMsg.innerText = ""; // โหลดสำเร็จ เคลียร์ข้อความ
         }
     } catch (error) {
         console.error("Error fetching data:", error);
-        document.getElementById("errorMsg").innerText = "❌ ไม่สามารถโหลดข้อมูลจาก Google Sheets ได้";
+        errorMsg.innerText = "❌ ไม่สามารถโหลดข้อมูลได้ (โปรดเช็คชื่อ Sheet)";
     }
 }
 
 // ----------------------------------------------------
-// ระบบพิมพ์แล้วเลื่อนช่องอัตโนมัติ (Auto-advance)
+// จัดการเปลี่ยนปี (ดึงข้อมูลใหม่เมื่อกดเปลี่ยน Tab)
+// ----------------------------------------------------
+const radioButtons = document.querySelectorAll('input[name="yearGroup"]');
+radioButtons.forEach(radio => {
+    radio.addEventListener('change', (e) => {
+        if (e.target.value === 'before2020') {
+            currentRange = RANGE_BEFORE_2020;
+        } else {
+            currentRange = RANGE_AFTER_2020;
+        }
+        // รีเซ็ตผลลัพธ์และโหลดข้อมูลชุดใหม่
+        document.getElementById("resultContainer").style.display = "none";
+        loadData();
+    });
+});
+
+// ----------------------------------------------------
+// ระบบพิมพ์แล้วเลื่อนช่องอัตโนมัติ (เสถียรขึ้น)
 // ----------------------------------------------------
 const inputs = document.querySelectorAll('.code-box');
 
 inputs.forEach((input, index) => {
-    // เมื่อมีการพิมพ์
-    input.addEventListener('input', (e) => {
-        // บังคับพิมพ์ใหญ่
+    // ใช้ input event สำหรับการเดินหน้า
+    input.addEventListener('input', () => {
         input.value = input.value.toUpperCase();
         
-        // ถ้าพิมพ์ครบจำนวน maxlength ของช่องนั้น ให้เลื่อนไปช่องถัดไป
         if (input.value.length === input.maxLength) {
             if (index < inputs.length - 1) {
                 inputs[index + 1].focus();
@@ -53,25 +80,26 @@ inputs.forEach((input, index) => {
         }
     });
 
-    // เมื่อมีการกดปุ่มบนคีย์บอร์ด (จัดการ Backspace)
+    // ใช้ keydown เพื่อดักจับ Backspace ก่อนที่ค่าจะถูกเปลี่ยน
     input.addEventListener('keydown', (e) => {
-        if (e.key === 'Backspace' && input.value === '') {
-            // ถ้าช่องว่างอยู่แล้วกด Backspace ให้ถอยไปช่องก่อนหน้า
-            if (index > 0) {
-                inputs[index - 1].focus();
-                // รอให้โฟกัสก่อนค่อยลบตัวอักษรของช่องก่อนหน้า
-                setTimeout(() => {
-                    inputs[index - 1].value = inputs[index - 1].value.slice(0, -1);
-                }, 10);
+        if (e.key === 'Backspace') {
+            // ถ้าช่องปัจจุบันว่างเปล่า แล้วกดลบ ให้ถอยไปช่องก่อนหน้าและเคลียร์ค่าช่องนั้น
+            if (input.value === '') {
+                if (index > 0) {
+                    inputs[index - 1].focus();
+                    inputs[index - 1].value = ''; // เคลียร์ค่าให้เลยเพื่อความสมูท
+                    e.preventDefault(); // ป้องกันพฤติกรรมลบซ้ำซ้อนของเบราว์เซอร์
+                }
             }
         } else if (e.key === 'Enter') {
-            // กด Enter เพื่อถอดรหัส
             decodeModelCode();
         }
     });
 });
 
-// ฟังก์ชันถอดรหัส
+// ----------------------------------------------------
+// ฟังก์ชันประมวลผลถอดรหัส
+// ----------------------------------------------------
 function decodeModelCode() {
     const errorMsg = document.getElementById("errorMsg");
     const resultContainer = document.getElementById("resultContainer");
@@ -85,31 +113,26 @@ function decodeModelCode() {
     let codeParts = [];
     let isValid = true;
 
-    // กวาดข้อมูลจากทุกช่อง
     inputs.forEach(input => {
         let val = input.value.trim().toUpperCase();
         fullCode += val;
         codeParts.push(val);
         
-        // ตรวจสอบว่ากรอกครบตาม MaxLength ของแต่ละช่องไหม
         if (val.length !== input.maxLength) {
             isValid = false;
         }
     });
 
-    // ตรวจสอบความถูกต้อง
     if (!isValid || fullCode.length !== 11) {
-        errorMsg.innerText = "❌ กรุณากรอกรหัส Model ให้ครบทุกช่องรวม 11 ตัวอักษร";
+        errorMsg.innerText = "❌ กรุณากรอกรหัส Model ให้ครบทุกช่อง";
         return;
     }
 
-    // แสดงรหัสเต็มๆ ด้านบน
     document.getElementById("displayCode").innerText = fullCode;
 
-    // สร้างกล่องแสดงผลทีละหมวด (ดึงข้อมูลจาก Array codeParts ที่แยกตามช่องไว้แล้ว)
     for (let i = 0; i < 10; i++) {
         let code = codeParts[i];
-        let decodedValue = modelDataMap[i][code] || `<span style="color:red;">${code} (ไม่พบรหัสนี้)</span>`;
+        let decodedValue = modelDataMap[i][code] || `<span style="color:#ef4444;">${code} (ไม่พบรหัสนี้)</span>`;
         
         let itemDiv = document.createElement("div");
         itemDiv.className = "result-item";
@@ -123,8 +146,7 @@ function decodeModelCode() {
     resultContainer.style.display = "block";
 }
 
-// ผูกปุ่มกดเข้ากับฟังก์ชัน
 document.getElementById("searchBtn").addEventListener("click", decodeModelCode);
 
-// โหลดข้อมูล
+// โหลดข้อมูลครั้งแรกเมื่อเปิดหน้า
 loadData();
