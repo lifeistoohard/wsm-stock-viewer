@@ -12,15 +12,30 @@
         }
         body {
             font-family: "Kanit", sans-serif;
-            /* พื้นหลังสีฟ้าอ่อนตามรูปอ้างอิง */
             background-color: #e6eeff; 
             display: flex;
-            justify-content: center;
+            flex-direction: column; /* เรียงจากบนลงล่าง */
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            padding: 20px;
+            padding: 40px 20px; /* เพิ่มพื้นที่ด้านบนและล่าง */
         }
+
+        /* --- ส่วน Header รูปภาพ --- */
+        header {
+            width: 100%;
+            max-width: 600px; /* ให้กว้างเท่ากับการ์ด */
+            margin-bottom: 24px;
+        }
+        header img {
+            width: 100%;
+            height: auto;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            display: block;
+        }
+
+        /* --- ส่วน Card หลัก --- */
         .card {
             background: #ffffff;
             width: 100%;
@@ -37,7 +52,6 @@
             margin-bottom: 24px;
         }
         
-        /* สไตล์ปุ่มเลือกปี (Toggle) */
         .year-selector {
             display: flex;
             background: #f0f4f8;
@@ -59,14 +73,12 @@
         .year-selector input[type="radio"] {
             display: none;
         }
-        /* เมื่อถูกเลือก ให้พื้นหลังเป็นสีขาวและข้อความสีน้ำเงิน */
         .year-selector input[type="radio"]:checked + label {
             background: #ffffff;
             color: #2563eb;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
 
-        /* ช่องกรอกรหัส */
         .code-inputs {
             display: flex;
             gap: 8px;
@@ -81,7 +93,6 @@
             font-family: "Kanit", sans-serif;
             font-weight: bold;
             text-align: center;
-            /* สีพื้นหลังกล่องแบบในรูป */
             background-color: #e2e8f0; 
             border: 2px solid transparent;
             border-radius: 6px;
@@ -98,7 +109,6 @@
             width: 55px; 
         }
 
-        /* ปุ่มสีน้ำเงิน */
         .verify-btn {
             font-family: "Kanit", sans-serif;
             font-size: 18px;
@@ -123,7 +133,6 @@
             min-height: 20px;
         }
 
-        /* ผลลัพธ์ */
         .result-container {
             margin-top: 30px;
             display: none;
@@ -161,12 +170,42 @@
             font-weight: bold;
             color: #0f172a;
         }
+
+        /* --- ส่วน Footer ด้านล่างสุด --- */
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 14px;
+            color: #64748b;
+            line-height: 1.8;
+        }
+        .footer a {
+            color: #2563eb;
+            text-decoration: none;
+            margin: 0 6px;
+            font-weight: 500;
+        }
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        .version-tag {
+            position: fixed; 
+            bottom: 1.5rem; 
+            left: 1.5rem; 
+            font-size: 12px; 
+            color: #94a3b8;
+        }
     </style>
 </head>
 <body>
 
+    <!-- เปลี่ยนชื่อไฟล์รูปภาพตรง src ให้ตรงกับรูปที่คุณต้องการใช้งาน -->
+    <header>
+        <img src="cv-header.png" alt="TF Model Decoder Header" />
+    </header>
+
     <div class="card">
-        <h1>ถอดรหัส TF Model</h1>
+        <h1>🚙 กรุณากรอกรหัส Model Name - LCV</h1>
 
         <!-- ตัวเลือกช่วงปี -->
         <div class="year-selector">
@@ -199,6 +238,20 @@
             <div class="result-header" id="displayCode"></div>
             <div class="result-grid" id="resultGrid"></div>
         </div>
+    </div>
+
+    <!-- ลิงก์ไปยังส่วนต่างๆ ของระบบ -->
+    <div class="footer">
+        Created by <strong>NA</strong><br>
+        <a href="https://lifeistoohard.github.io/wsm-stock-viewer/" target="_blank">WSM Stock</a> |
+        <a href="https://lifeistoohard.github.io/wsm-stock-viewer/service/service.html" target="_blank">Service Bulletins</a> |
+        <a href="https://lifeistoohard.github.io/wsm-stock-viewer/maintenance" target="_blank">Maintenance Viewer</a> |
+        <a href="https://lifeistoohard.github.io/wsm-stock-viewer/ParsTranslator.html" target="_blank">Part name Translator</a>
+    </div>
+
+    <!-- ลายน้ำเวอร์ชันมุมซ้ายล่าง -->
+    <div class="version-tag">
+        V1.0 by NA
     </div>
 
     <script src="tf-model.js"></script>
