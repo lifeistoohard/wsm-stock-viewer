@@ -46,7 +46,6 @@
             margin-bottom: 20px;
         }
 
-        /* --- Toggle หลัก (LCV vs CV) --- */
         .main-toggle {
             display: flex;
             background: #e2e8f0;
@@ -77,7 +76,6 @@
             box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
         }
 
-        /* --- Toggle ย่อย LCV (ก่อน-หลัง 2020) --- */
         .year-selector {
             display: flex;
             background: #f0f4f8;
@@ -103,7 +101,6 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
 
-        /* --- ช่องกรอกรหัส --- */
         .code-inputs {
             display: flex;
             gap: 8px;
@@ -154,7 +151,6 @@
             min-height: 20px;
         }
 
-        /* --- กล่องผลลัพธ์ --- */
         .result-container {
             margin-top: 30px;
             display: none;
@@ -180,6 +176,7 @@
             padding: 12px;
             border-radius: 6px;
             border-left: 4px solid #3b82f6;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
         .result-item span.label {
             font-size: 12px;
@@ -192,6 +189,49 @@
             font-weight: bold;
             color: #0f172a;
         }
+        
+        /* สไตล์สำหรับกล่องที่คลิกได้ (เครื่องยนต์) */
+        .clickable-box {
+            cursor: pointer;
+            border-left-color: #f59e0b; /* เปลี่ยนสีแถบซ้ายให้เด่นขึ้น */
+        }
+        .clickable-box:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15);
+            background: #fffbeb;
+        }
+        .info-badge {
+            float: right;
+            background: #f59e0b;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        /* --- CSS สำหรับ Modal (Popup) --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none; justify-content: center; align-items: center;
+            z-index: 1000; opacity: 0; transition: opacity 0.3s ease;
+        }
+        .modal-overlay.show { display: flex; opacity: 1; }
+        .modal-content {
+            background: #fff; width: 90%; max-width: 500px;
+            border-radius: 12px; padding: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            position: relative; transform: translateY(-20px); transition: transform 0.3s ease;
+        }
+        .modal-overlay.show .modal-content { transform: translateY(0); }
+        .modal-close {
+            position: absolute; top: 16px; right: 16px; font-size: 24px;
+            cursor: pointer; color: #888; line-height: 1;
+        }
+        .modal-close:hover { color: #db2e33; }
+        .modal-title { font-size: 18px; font-weight: bold; color: #2563eb; margin-bottom: 16px; padding-right: 24px; border-bottom: 1px solid #eee; padding-bottom: 10px;}
+        .modal-body p { margin-bottom: 12px; font-size: 15px; color: #333; line-height: 1.6; }
+        .modal-body strong { color: #0f172a; }
 
         .footer {
             margin-top: 40px;
@@ -213,7 +253,6 @@
 
     <div class="card">
         
-        <!-- Toggle สลับตระกูลรถ LCV / CV -->
         <div class="main-toggle">
             <input type="radio" id="typeLCV" name="vehicleFamily" value="LCV" checked>
             <label for="typeLCV">🚗 รถปิกอัพ (LCV)</label>
@@ -224,7 +263,6 @@
 
         <h1 id="titleText">กรุณากรอกรหัส Model Name - LCV</h1>
 
-        <!-- ================= โซน LCV ================= -->
         <div id="lcvSection">
             <div class="year-selector">
                 <input type="radio" id="yearBefore" name="yearGroupLCV" value="before2020">
@@ -247,9 +285,7 @@
             </div>
         </div>
 
-        <!-- ================= โซน CV ================= -->
         <div id="cvSection" style="display: none;">
-            <!-- CV มีทั้งหมด 9 ช่อง รวม 10 ตัวอักษร -->
             <div class="code-inputs" id="cvInputs">
                 <input type="text" maxlength="1" class="code-box cv-box" placeholder="F">
                 <input type="text" maxlength="1" class="code-box cv-box" placeholder="R">
@@ -258,8 +294,8 @@
                 <input type="text" maxlength="1" class="code-box cv-box" placeholder="J">
                 <input type="text" maxlength="1" class="code-box cv-box" placeholder="N">
                 <input type="text" maxlength="1" class="code-box cv-box" placeholder="X">
-                <input type="text" maxlength="1" class="code-box cv-box" placeholder="X"> <!-- เฟืองท้าย -->
-                <input type="text" maxlength="1" class="code-box cv-box" placeholder="B"> <!-- รุ่นปี -->
+                <input type="text" maxlength="1" class="code-box cv-box" placeholder="Y">
+                <input type="text" maxlength="1" class="code-box cv-box" placeholder="B"> 
             </div>
         </div>
 
@@ -272,6 +308,17 @@
         </div>
     </div>
 
+    <!-- โครงสร้างของ Popup Modal -->
+    <div id="infoModal" class="modal-overlay">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal()">&times;</span>
+            <div class="modal-title" id="modalTitle">ข้อมูลเครื่องยนต์</div>
+            <div class="modal-body" id="modalBody">
+                <!-- ข้อมูลจะถูกแทรกที่นี่ -->
+            </div>
+        </div>
+    </div>
+
     <div class="footer">
         Created by <strong>NA</strong><br>
         <a href="https://lifeistoohard.github.io/wsm-stock-viewer/" target="_blank">WSM Stock</a> |
@@ -280,7 +327,7 @@
         <a href="https://lifeistoohard.github.io/wsm-stock-viewer/ParsTranslator.html" target="_blank">Part name Translator</a>
     </div>
 
-    <div class="version-tag">V2.2 (LCV & CV) by NA</div>
+    <div class="version-tag">V3.0 (Interactive) by NA</div>
 
     <script src="tf-model.js"></script>
 </body>
