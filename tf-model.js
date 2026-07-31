@@ -4,15 +4,14 @@ const API_KEY  = "AIzaSyAki5uoqv3JpG7sqZ7crpaALomcUxlD72k";
 // กำหนดชื่อ Sheet ให้ตรงกัน
 const RANGE_LCV_AFTER  = "'TF_Model code'!A1:K"; 
 const RANGE_LCV_BEFORE = "'TF_Model code_Before2020'!A1:K"; 
-const RANGE_CV         = "'CV_Model code'!A1:J"; // CV มี A ถึง I/J 
+const RANGE_CV         = "'CV_Model code'!A1:J"; 
 
-let currentFamily = "LCV"; // 'LCV' หรือ 'CV'
+let currentFamily = "LCV"; 
 let currentLCVRange = RANGE_LCV_AFTER; 
 
 let dbLCV = { headers: [], data: [] };
 let dbCV  = { headers: [], data: [] };
 
-// ฟังก์ชันโหลดข้อมูลหลัก
 async function fetchSheet(range, targetDB, colCount) {
     const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}?key=${API_KEY}`;
     const res = await fetch(url);
@@ -54,7 +53,7 @@ async function loadData() {
 }
 
 // ----------------------------------------------------
-// UI Toggles สลับประเภทรถ และ ปี
+// UI Toggles สลับประเภทรถ (รูปภาพ, ข้อความ และช่อง)
 // ----------------------------------------------------
 document.querySelectorAll('input[name="vehicleFamily"]').forEach(radio => {
     radio.addEventListener('change', (e) => {
@@ -62,17 +61,26 @@ document.querySelectorAll('input[name="vehicleFamily"]').forEach(radio => {
         document.getElementById("resultContainer").style.display = "none";
         document.getElementById("errorMsg").innerText = "";
 
+        // ตัวแปรสำหรับเชื่อมต่อหน้า UI
+        const headerImg = document.getElementById("headerImg");
+        const titleText = document.getElementById("titleText");
+        const lcvSection = document.getElementById("lcvSection");
+        const cvSection = document.getElementById("cvSection");
+
         // สลับ UI
         if (currentFamily === "LCV") {
-            document.getElementById("lcvSection").style.display = "block";
-            document.getElementById("cvSection").style.display = "none";
-            document.getElementById("titleText").innerText = "กรุณากรอกรหัส Model - LCV (11 หลัก)";
+            lcvSection.style.display = "block";
+            cvSection.style.display = "none";
+            titleText.innerText = "กรุณากรอกรหัส Model Name - LCV";
+            headerImg.src = "ModelCode_header.png";
         } else {
-            document.getElementById("lcvSection").style.display = "none";
-            document.getElementById("cvSection").style.display = "block";
-            document.getElementById("titleText").innerText = "กรุณากรอกรหัส Model - CV (9 หลัก)";
+            lcvSection.style.display = "none";
+            cvSection.style.display = "block";
+            titleText.innerText = "กรุณากรอกรหัส Model Name - CV";
+            headerImg.src = "CVModelCode_header.png";
         }
-        loadData(); // โหลดชีตของหมวดนั้นๆ
+        
+        loadData(); 
     });
 });
 
@@ -89,14 +97,13 @@ document.querySelectorAll('input[name="yearGroupLCV"]').forEach(radio => {
 function setupInputs(selector, maxCharsTotal) {
     const inputs = document.querySelectorAll(selector);
     inputs.forEach((input, index) => {
-        // 1. พิมพ์ปกติ เลื่อนอัตโนมัติ
         input.addEventListener('input', () => {
             input.value = input.value.toUpperCase();
             if (input.value.length === input.maxLength) {
                 if (index < inputs.length - 1) inputs[index + 1].focus();
             }
         });
-        // 2. ลบถอยหลัง
+        
         input.addEventListener('keydown', (e) => {
             if (e.key === 'Backspace' && input.value === '') {
                 if (index > 0) {
@@ -108,7 +115,7 @@ function setupInputs(selector, maxCharsTotal) {
                 decodeModelCode();
             }
         });
-        // 3. ก๊อปปี้วาง
+        
         input.addEventListener('paste', (e) => {
             e.preventDefault();
             let pastedText = (e.clipboardData || window.clipboardData).getData('text').toUpperCase().trim();
@@ -126,6 +133,7 @@ function setupInputs(selector, maxCharsTotal) {
         });
     });
 }
+
 // ผูก Event ให้ทั้งสองกลุ่ม
 setupInputs('.lcv-box', 11);
 setupInputs('.cv-box', 9);
@@ -142,7 +150,6 @@ function decodeModelCode() {
     resultGrid.innerHTML = "";
     resultContainer.style.display = "none";
 
-    // ดึงค่า Input ของหมวดที่กำลังเปิดใช้งาน
     const activeInputs = currentFamily === "LCV" ? document.querySelectorAll('.lcv-box') : document.querySelectorAll('.cv-box');
     const requiredLength = currentFamily === "LCV" ? 11 : 9;
     
@@ -158,7 +165,7 @@ function decodeModelCode() {
     });
 
     if (!isValid || fullCode.length !== requiredLength) {
-        errorMsg.innerText = `❌ กรุณากรอกรหัสให้ครบทุกช่อง (รวม ${requiredLength} ตัวอักษร)`;
+        errorMsg.innerText = `❌ กรุณากรอกรหัสให้ครบทุกช่อง`;
         return;
     }
 
@@ -173,7 +180,6 @@ function decodeModelCode() {
     resultContainer.style.display = "block";
 }
 
-// ---- ฟังก์ชันย่อยสำหรับ LCV ----
 function decodeLCV(codeParts, grid) {
     const yearCode = codeParts[9]; 
     const codes2003to2011 = ['A','B','C','D','E','F','G','H','I','K','L','M','N'];
@@ -197,20 +203,13 @@ function decodeLCV(codeParts, grid) {
     }
 }
 
-// ---- ฟังก์ชันย่อยสำหรับ CV ----
 function decodeCV(codeParts, grid) {
-    // 8 ตำแหน่งการกรอก (index 0 ถึง 7)
-    // 0:char1, 1:char2, 2:char3, 3:char4-5, 4:char6, 5:char7, 6:char8, 7:char9
-    
-    // ดึงหลักที่ 9 (Year Code) จากกล่องที่ 8 (index 7)
     const yearCode = codeParts[7]; 
     
-    // หากข้อมูลใน Sheet เป็นแบบ คอลัมน์ I (Index 8) คือปี
     let yearDataStr = dbCV.data[8][yearCode] || ""; 
     let yearMatch = yearDataStr.match(/\d{4}/);
     let yearNumber = yearMatch ? parseInt(yearMatch[0]) : 0; 
     
-    // เงื่อนไข: ถ้าปี >= 2024 ใช้คอลัมน์ E (Index 4), ถ้าไม่ถึงใช้คอลัมน์ D (Index 3)
     const engineColIndex = (yearNumber >= 2024) ? 4 : 3;
 
     for (let i = 0; i < 8; i++) {
@@ -218,12 +217,8 @@ function decodeCV(codeParts, grid) {
         let colIndex = i; 
         
         if (i === 3) {
-            // กล่องที่ 4 (เครื่องยนต์) โยกไปใช้คอลัมน์ D(3) หรือ E(4)
             colIndex = engineColIndex; 
         } else if (i > 3) {
-            // ตั้งแต่กล่องที่ 5 เป็นต้นไป (ตัวอักษรที่ 6-9) ต้องขยับบวก 1 คอลัมน์ (ข้ามคอลัมน์ E)
-            // เช่น กล่องที่ 5(i=4) ไปอ่านคอลัมน์ F(5)
-            // กล่องที่ 8(i=7) ไปอ่านคอลัมน์ I(8)
             colIndex = i + 1;
         }
 
@@ -233,7 +228,6 @@ function decodeCV(codeParts, grid) {
     }
 }
 
-// สร้างกล่องแสดงผล HTML
 function appendResultBox(grid, label, value) {
     let itemDiv = document.createElement("div");
     itemDiv.className = "result-item";
@@ -243,5 +237,4 @@ function appendResultBox(grid, label, value) {
 
 document.getElementById("searchBtn").addEventListener("click", decodeModelCode);
 
-// เริ่มทำงาน
 loadData();
