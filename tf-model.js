@@ -1,115 +1,138 @@
-// กำหนดข้อมูล Google Sheets API
 const SHEET_ID = "19pJJpiDKatYgUmO_43SUyECxqTYaqfhwcQwYiuxn-d8"; 
 const API_KEY  = "AIzaSyAki5uoqv3JpG7sqZ7crpaALomcUxlD72k"; 
 
-// 🔴 ดึงข้อมูลเผื่อไว้ถึงคอลัมน์ K (A1:K) เพื่อรองรับชีตก่อนปี 2020 
-const RANGE_AFTER_2020  = "'TF_Model code'!A1:K"; 
-const RANGE_BEFORE_2020 = "'TF_Model code_Before2020'!A1:K"; 
+// กำหนดชื่อ Sheet ให้ตรงกัน
+const RANGE_LCV_AFTER  = "'TF_Model code'!A1:K"; 
+const RANGE_LCV_BEFORE = "'TF_Model code_Before2020'!A1:K"; 
+const RANGE_CV         = "'CV_Model code'!A1:J"; // CV มี A ถึง I/J 
 
-let modelDataMap = [];
-let headers = [];
-let currentRange = RANGE_AFTER_2020; 
+let currentFamily = "LCV"; // 'LCV' หรือ 'CV'
+let currentLCVRange = RANGE_LCV_AFTER; 
 
-// ฟังก์ชันโหลดข้อมูลจาก Google Sheets
-async function loadData() {
-    const errorMsg = document.getElementById("errorMsg");
-    errorMsg.innerText = "กำลังโหลดข้อมูล...";
-    
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${currentRange}?key=${API_KEY}`;
-    try {
-        const res = await fetch(url);
-        const obj = await res.json();
-        
-        if (obj.error) {
-            throw new Error(obj.error.message);
-        }
+let dbLCV = { headers: [], data: [] };
+let dbCV  = { headers: [], data: [] };
 
-        const rows = obj.values || [];
-        if (rows.length > 0) {
-            headers = rows[0]; 
-            // เตรียม Array 11 ช่อง (Index 0-10) สำหรับคอลัมน์ A ถึง K
-            modelDataMap = Array.from({ length: 11 }, () => ({}));
+// ฟังก์ชันโหลดข้อมูลหลัก
+async function fetchSheet(range, targetDB, colCount) {
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}?key=${API_KEY}`;
+    const res = await fetch(url);
+    const obj = await res.json();
+    if (obj.error) throw new Error(obj.error.message);
 
-            for (let i = 1; i < rows.length; i++) {
-                // วนลูป 11 คอลัมน์
-                for (let col = 0; col < 11; col++) {
-                    let cellValue = rows[i][col];
-                    if (cellValue) {
-                        let key = cellValue.split(':')[0].trim();
-                        modelDataMap[col][key] = cellValue; 
-                    }
+    const rows = obj.values || [];
+    if (rows.length > 0) {
+        targetDB.headers = rows[0]; 
+        targetDB.data = Array.from({ length: colCount }, () => ({}));
+
+        for (let i = 1; i < rows.length; i++) {
+            for (let col = 0; col < colCount; col++) {
+                let cellValue = rows[i][col];
+                if (cellValue) {
+                    let key = cellValue.split(':')[0].trim();
+                    targetDB.data[col][key] = cellValue; 
                 }
             }
-            errorMsg.innerText = ""; 
         }
-    } catch (error) {
-        console.error("Error fetching data:", error);
-        errorMsg.innerText = "❌ ไม่สามารถโหลดข้อมูลได้ (โปรดเช็คชื่อ Sheet)";
     }
 }
 
-// จัดการเปลี่ยนปี 
-const radioButtons = document.querySelectorAll('input[name="yearGroup"]');
-radioButtons.forEach(radio => {
-    radio.addEventListener('change', (e) => {
-        if (e.target.value === 'before2020') {
-            currentRange = RANGE_BEFORE_2020;
+async function loadData() {
+    const errorMsg = document.getElementById("errorMsg");
+    errorMsg.innerText = "กำลังโหลดข้อมูล...";
+    document.getElementById("resultContainer").style.display = "none";
+    try {
+        if (currentFamily === "LCV") {
+            await fetchSheet(currentLCVRange, dbLCV, 11);
         } else {
-            currentRange = RANGE_AFTER_2020;
+            await fetchSheet(RANGE_CV, dbCV, 10);
         }
+        errorMsg.innerText = ""; 
+    } catch (error) {
+        console.error("Error:", error);
+        errorMsg.innerText = "❌ โหลดข้อมูลไม่สำเร็จ โปรดเช็คชื่อ Sheet หรือ API";
+    }
+}
+
+// ----------------------------------------------------
+// UI Toggles สลับประเภทรถ และ ปี
+// ----------------------------------------------------
+document.querySelectorAll('input[name="vehicleFamily"]').forEach(radio => {
+    radio.addEventListener('change', (e) => {
+        currentFamily = e.target.value;
         document.getElementById("resultContainer").style.display = "none";
+        document.getElementById("errorMsg").innerText = "";
+
+        // สลับ UI
+        if (currentFamily === "LCV") {
+            document.getElementById("lcvSection").style.display = "block";
+            document.getElementById("cvSection").style.display = "none";
+            document.getElementById("titleText").innerText = "กรุณากรอกรหัส Model - LCV (11 หลัก)";
+        } else {
+            document.getElementById("lcvSection").style.display = "none";
+            document.getElementById("cvSection").style.display = "block";
+            document.getElementById("titleText").innerText = "กรุณากรอกรหัส Model - CV (9 หลัก)";
+        }
+        loadData(); // โหลดชีตของหมวดนั้นๆ
+    });
+});
+
+document.querySelectorAll('input[name="yearGroupLCV"]').forEach(radio => {
+    radio.addEventListener('change', (e) => {
+        currentLCVRange = (e.target.value === 'before2020') ? RANGE_LCV_BEFORE : RANGE_LCV_AFTER;
         loadData();
     });
 });
 
-// ระบบพิมพ์ เลื่อนช่อง และ Copy/Paste
-const inputs = document.querySelectorAll('.code-box');
-
-inputs.forEach((input, index) => {
-    input.addEventListener('input', () => {
-        input.value = input.value.toUpperCase();
-        if (input.value.length === input.maxLength) {
-            if (index < inputs.length - 1) {
-                inputs[index + 1].focus();
+// ----------------------------------------------------
+// ระบบ Input Auto-Advance & Paste
+// ----------------------------------------------------
+function setupInputs(selector, maxCharsTotal) {
+    const inputs = document.querySelectorAll(selector);
+    inputs.forEach((input, index) => {
+        // 1. พิมพ์ปกติ เลื่อนอัตโนมัติ
+        input.addEventListener('input', () => {
+            input.value = input.value.toUpperCase();
+            if (input.value.length === input.maxLength) {
+                if (index < inputs.length - 1) inputs[index + 1].focus();
             }
-        }
-    });
-
-    input.addEventListener('keydown', (e) => {
-        if (e.key === 'Backspace') {
-            if (input.value === '') {
+        });
+        // 2. ลบถอยหลัง
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Backspace' && input.value === '') {
                 if (index > 0) {
                     inputs[index - 1].focus();
                     inputs[index - 1].value = ''; 
                     e.preventDefault(); 
                 }
+            } else if (e.key === 'Enter') {
+                decodeModelCode();
             }
-        } else if (e.key === 'Enter') {
-            decodeModelCode();
-        }
+        });
+        // 3. ก๊อปปี้วาง
+        input.addEventListener('paste', (e) => {
+            e.preventDefault();
+            let pastedText = (e.clipboardData || window.clipboardData).getData('text').toUpperCase().trim();
+            let currentPos = 0;
+            for (let i = 0; i < inputs.length; i++) {
+                if (currentPos >= pastedText.length) break;
+                let maxLen = inputs[i].maxLength;
+                inputs[i].value = pastedText.substring(currentPos, currentPos + maxLen);
+                inputs[i].focus();
+                currentPos += maxLen;
+            }
+            if (currentPos === maxCharsTotal) {
+                setTimeout(decodeModelCode, 100);
+            }
+        });
     });
+}
+// ผูก Event ให้ทั้งสองกลุ่ม
+setupInputs('.lcv-box', 11);
+setupInputs('.cv-box', 9);
 
-    input.addEventListener('paste', (e) => {
-        e.preventDefault();
-        let pastedText = (e.clipboardData || window.clipboardData).getData('text').toUpperCase().trim();
-        let currentPos = 0;
-
-        for (let i = 0; i < inputs.length; i++) {
-            if (currentPos >= pastedText.length) break;
-            let maxLen = inputs[i].maxLength;
-            let textForBox = pastedText.substring(currentPos, currentPos + maxLen);
-            inputs[i].value = textForBox;
-            inputs[i].focus();
-            currentPos += maxLen;
-        }
-
-        if (currentPos === 11) {
-            setTimeout(decodeModelCode, 100);
-        }
-    });
-});
-
-// ฟังก์ชันประมวลผลถอดรหัส
+// ----------------------------------------------------
+// ฟังก์ชันประมวลผล (แยก LCV และ CV)
+// ----------------------------------------------------
 function decodeModelCode() {
     const errorMsg = document.getElementById("errorMsg");
     const resultContainer = document.getElementById("resultContainer");
@@ -119,73 +142,106 @@ function decodeModelCode() {
     resultGrid.innerHTML = "";
     resultContainer.style.display = "none";
 
+    // ดึงค่า Input ของหมวดที่กำลังเปิดใช้งาน
+    const activeInputs = currentFamily === "LCV" ? document.querySelectorAll('.lcv-box') : document.querySelectorAll('.cv-box');
+    const requiredLength = currentFamily === "LCV" ? 11 : 9;
+    
     let fullCode = "";
     let codeParts = [];
     let isValid = true;
 
-    inputs.forEach(input => {
+    activeInputs.forEach(input => {
         let val = input.value.trim().toUpperCase();
         fullCode += val;
         codeParts.push(val);
-        if (val.length !== input.maxLength) {
-            isValid = false;
-        }
+        if (val.length !== input.maxLength) isValid = false;
     });
 
-    if (!isValid || fullCode.length !== 11) {
-        errorMsg.innerText = "❌ กรุณากรอกรหัส Model ให้ครบทุกช่อง (รวม 11 ตัวอักษร)";
+    if (!isValid || fullCode.length !== requiredLength) {
+        errorMsg.innerText = `❌ กรุณากรอกรหัสให้ครบทุกช่อง (รวม ${requiredLength} ตัวอักษร)`;
         return;
     }
 
     document.getElementById("displayCode").innerText = fullCode;
 
-    // รหัสปี คอลัมน์สุดท้าย
-    const yearCode = codeParts[9]; 
-    // ตัวอักษรปีช่วง 2003 - 2011
-    const codes2003to2011 = ['A','B','C','D','E','F','G','H','I','K','L','M','N'];
-
-    // วนสร้างผลลัพธ์ 10 ตำแหน่ง
-    for (let i = 0; i < 10; i++) {
-        let code = codeParts[i];
-        
-        // ค่าตั้งต้น: ให้อ่านจากคอลัมน์เดียวกับ Index ของช่องนั้น
-        let colIndex = i; 
-        let headerText = headers[i];
-
-        // 🟢 เงื่อนไขพิเศษสำหรับ "ก่อนรุ่นปี 2020"
-        if (currentRange === RANGE_BEFORE_2020) {
-            if (i === 8) { 
-                // หลักที่ 9 (เกรด) ต้องดูจากรหัสปี
-                if (codes2003to2011.includes(yearCode)) {
-                    colIndex = 8; // ใช้คอลัมน์ I
-                    headerText = headers[8] || "เกรด (2003-2011)";
-                } else {
-                    colIndex = 9; // ใช้คอลัมน์ J
-                    headerText = headers[9] || "เกรด (2012+)";
-                }
-            } else if (i === 9) {
-                // หลักที่ 10 (รุ่นปี) ขยับไปใช้คอลัมน์ K
-                colIndex = 10; 
-                headerText = headers[10] || "รุ่นปี";
-            }
-        }
-
-        // ดึงข้อความจาก Data Map
-        let decodedValue = modelDataMap[colIndex][code] || `<span style="color:#ef4444;">${code} (ไม่พบรหัสนี้)</span>`;
-        
-        let itemDiv = document.createElement("div");
-        itemDiv.className = "result-item";
-        itemDiv.innerHTML = `
-            <span class="label">📍 ${headerText || `ตำแหน่งที่ ${i+1}`}</span>
-            <span class="value">${decodedValue}</span>
-        `;
-        resultGrid.appendChild(itemDiv);
+    if (currentFamily === "LCV") {
+        decodeLCV(codeParts, resultGrid);
+    } else {
+        decodeCV(codeParts, resultGrid);
     }
 
     resultContainer.style.display = "block";
 }
 
+// ---- ฟังก์ชันย่อยสำหรับ LCV ----
+function decodeLCV(codeParts, grid) {
+    const yearCode = codeParts[9]; 
+    const codes2003to2011 = ['A','B','C','D','E','F','G','H','I','K','L','M','N'];
+
+    for (let i = 0; i < 10; i++) {
+        let code = codeParts[i];
+        let colIndex = i; 
+        let headerText = dbLCV.headers[i];
+
+        if (currentLCVRange === RANGE_LCV_BEFORE) {
+            if (i === 8) { 
+                colIndex = codes2003to2011.includes(yearCode) ? 8 : 9; 
+                headerText = dbLCV.headers[colIndex] || "เกรด";
+            } else if (i === 9) {
+                colIndex = 10; 
+                headerText = dbLCV.headers[10] || "รุ่นปี";
+            }
+        }
+        let decodedValue = dbLCV.data[colIndex][code] || `<span style="color:#ef4444;">${code} (ไม่พบรหัสนี้)</span>`;
+        appendResultBox(grid, headerText || `ตำแหน่ง ${i+1}`, decodedValue);
+    }
+}
+
+// ---- ฟังก์ชันย่อยสำหรับ CV ----
+function decodeCV(codeParts, grid) {
+    // 8 ตำแหน่งการกรอก (index 0 ถึง 7)
+    // 0:char1, 1:char2, 2:char3, 3:char4-5, 4:char6, 5:char7, 6:char8, 7:char9
+    
+    // ดึงหลักที่ 9 (Year Code) จากกล่องที่ 8 (index 7)
+    const yearCode = codeParts[7]; 
+    
+    // หากข้อมูลใน Sheet เป็นแบบ คอลัมน์ I (Index 8) คือปี
+    let yearDataStr = dbCV.data[8][yearCode] || ""; 
+    let yearMatch = yearDataStr.match(/\d{4}/);
+    let yearNumber = yearMatch ? parseInt(yearMatch[0]) : 0; 
+    
+    // เงื่อนไข: ถ้าปี >= 2024 ใช้คอลัมน์ E (Index 4), ถ้าไม่ถึงใช้คอลัมน์ D (Index 3)
+    const engineColIndex = (yearNumber >= 2024) ? 4 : 3;
+
+    for (let i = 0; i < 8; i++) {
+        let code = codeParts[i];
+        let colIndex = i; 
+        
+        if (i === 3) {
+            // กล่องที่ 4 (เครื่องยนต์) โยกไปใช้คอลัมน์ D(3) หรือ E(4)
+            colIndex = engineColIndex; 
+        } else if (i > 3) {
+            // ตั้งแต่กล่องที่ 5 เป็นต้นไป (ตัวอักษรที่ 6-9) ต้องขยับบวก 1 คอลัมน์ (ข้ามคอลัมน์ E)
+            // เช่น กล่องที่ 5(i=4) ไปอ่านคอลัมน์ F(5)
+            // กล่องที่ 8(i=7) ไปอ่านคอลัมน์ I(8)
+            colIndex = i + 1;
+        }
+
+        let headerText = dbCV.headers[colIndex];
+        let decodedValue = dbCV.data[colIndex][code] || `<span style="color:#ef4444;">${code} (ไม่พบรหัสนี้)</span>`;
+        appendResultBox(grid, headerText || `ตำแหน่ง ${i+1}`, decodedValue);
+    }
+}
+
+// สร้างกล่องแสดงผล HTML
+function appendResultBox(grid, label, value) {
+    let itemDiv = document.createElement("div");
+    itemDiv.className = "result-item";
+    itemDiv.innerHTML = `<span class="label">📍 ${label}</span><span class="value">${value}</span>`;
+    grid.appendChild(itemDiv);
+}
+
 document.getElementById("searchBtn").addEventListener("click", decodeModelCode);
 
-// โหลดข้อมูลครั้งแรก
+// เริ่มทำงาน
 loadData();
