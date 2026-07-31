@@ -66,7 +66,16 @@
             transition: all 0.3s ease;
         }
         .main-toggle input[type="radio"] { display: none; }
-        .main-toggle input[type="radio"]:checked + label {
+        
+        /* 🔴 ถ้าเลือก LCV ให้ปุ่มเป็นสีแดง */
+        .main-toggle input[type="radio"]#typeLCV:checked + label {
+            background: #db2e33;
+            color: #ffffff;
+            box-shadow: 0 4px 10px rgba(219, 46, 51, 0.3);
+        }
+        
+        /* 🔵 ถ้าเลือก CV ให้ปุ่มเป็นสีฟ้า */
+        .main-toggle input[type="radio"]#typeCV:checked + label {
             background: #3b82f6;
             color: #ffffff;
             box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
@@ -94,7 +103,7 @@
         .year-selector input[type="radio"] { display: none; }
         .year-selector input[type="radio"]:checked + label {
             background: #ffffff;
-            color: #2563eb;
+            color: #db2e33; /* สีตัวอักษรของปีให้เข้ากับธีม LCV */
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
 
@@ -123,7 +132,7 @@
         }
         .code-box:focus {
             background-color: #ffffff;
-            border-color: #2563eb;
+            border-color: #3b82f6;
         }
         .engine-box { width: 55px; }
 
@@ -135,7 +144,7 @@
             width: 100%;
             cursor: pointer;
             border: none;
-            background: #10b981; /* เปลี่ยนปุ่มเป็นสีเขียวให้ดูต่างจากปุ่ม Toggle */
+            background: #10b981; 
             color: white;
             border-radius: 8px;
             transition: background 0.2s ease;
@@ -203,7 +212,8 @@
 <body>
 
     <header>
-        <img src="cv-header.png" alt="Model Decoder Header" />
+        <!-- เพิ่ม ID ให้รูปภาพ เพื่อใช้ JS สลับรูป -->
+        <img id="headerImg" src="ModelCode_header.png" alt="Model Decoder Header" />
     </header>
 
     <div class="card">
@@ -217,7 +227,8 @@
             <label for="typeCV">🚚 รถบรรทุก (CV)</label>
         </div>
 
-        <h1 id="titleText">กรุณากรอกรหัส Model - LCV (11 หลัก)</h1>
+        <!-- เพิ่ม ID ให้ Header เพื่อสลับข้อความ -->
+        <h1 id="titleText">กรุณากรอกรหัส Model Name - LCV</h1>
 
         <!-- ================= โซน LCV ================= -->
         <div id="lcvSection">
@@ -244,6 +255,7 @@
         </div>
 
         <!-- ================= โซน CV ================= -->
+        <!-- ตัวเลือกปี "ก่อน/หลัง 2020" จะไม่ปรากฏที่นี่ เพราะเราแยกส่วนกัน -->
         <div id="cvSection" style="display: none;">
             <!-- ช่องกรอก CV 8 ช่อง (9 ตัวอักษร) -->
             <div class="code-inputs" id="cvInputs">
@@ -275,7 +287,7 @@
         <a href="https://lifeistoohard.github.io/wsm-stock-viewer/ParsTranslator.html" target="_blank">Part name Translator</a>
     </div>
 
-    <div class="version-tag">V2.0 (LCV & CV) by NA</div>
+    <div class="version-tag">V2.1 (LCV & CV) by NA</div>
 
     <script src="tf-model.js"></script>
 </body>
