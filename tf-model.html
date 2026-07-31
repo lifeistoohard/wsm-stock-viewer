@@ -2,29 +2,25 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8" />
-    <title>TF Model Code Decoder</title>
+    <title>Model Code Decoder</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
-        * {
-            box-sizing: border-box;
-        }
+        * { box-sizing: border-box; }
         body {
             font-family: "Kanit", sans-serif;
             background-color: #e6eeff; 
             display: flex;
-            flex-direction: column; /* เรียงจากบนลงล่าง */
+            flex-direction: column; 
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            padding: 40px 20px; /* เพิ่มพื้นที่ด้านบนและล่าง */
+            padding: 40px 20px; 
         }
-
-        /* --- ส่วน Header รูปภาพ --- */
         header {
             width: 100%;
-            max-width: 600px; /* ให้กว้างเท่ากับการ์ด */
+            max-width: 600px; 
             margin-bottom: 24px;
         }
         header img {
@@ -34,8 +30,6 @@
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
             display: block;
         }
-
-        /* --- ส่วน Card หลัก --- */
         .card {
             background: #ffffff;
             width: 100%;
@@ -49,36 +43,62 @@
             font-size: 24px;
             color: #333;
             margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        /* --- Toggle หลัก (LCV vs CV) --- */
+        .main-toggle {
+            display: flex;
+            background: #e2e8f0;
+            border-radius: 12px;
+            padding: 6px;
             margin-bottom: 24px;
         }
-        
+        .main-toggle label {
+            flex: 1;
+            text-align: center;
+            padding: 12px 0;
+            font-size: 18px;
+            font-weight: bold;
+            color: #64748b;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        .main-toggle input[type="radio"] { display: none; }
+        .main-toggle input[type="radio"]:checked + label {
+            background: #3b82f6;
+            color: #ffffff;
+            box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
+        }
+
+        /* --- Toggle ย่อยของ LCV (ก่อน-หลัง 2020) --- */
         .year-selector {
             display: flex;
             background: #f0f4f8;
             border-radius: 8px;
             padding: 4px;
-            margin-bottom: 30px;
+            margin-bottom: 24px;
         }
         .year-selector label {
             flex: 1;
             text-align: center;
-            padding: 10px 0;
-            font-size: 16px;
+            padding: 8px 0;
+            font-size: 15px;
             font-weight: 500;
             color: #666;
             cursor: pointer;
             border-radius: 6px;
             transition: all 0.3s ease;
         }
-        .year-selector input[type="radio"] {
-            display: none;
-        }
+        .year-selector input[type="radio"] { display: none; }
         .year-selector input[type="radio"]:checked + label {
             background: #ffffff;
             color: #2563eb;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
 
+        /* --- ช่องกรอกรหัส --- */
         .code-inputs {
             display: flex;
             gap: 8px;
@@ -93,7 +113,7 @@
             font-family: "Kanit", sans-serif;
             font-weight: bold;
             text-align: center;
-            background-color: #e2e8f0; 
+            background-color: #f1f5f9; 
             border: 2px solid transparent;
             border-radius: 6px;
             text-transform: uppercase;
@@ -105,9 +125,7 @@
             background-color: #ffffff;
             border-color: #2563eb;
         }
-        .engine-box {
-            width: 55px; 
-        }
+        .engine-box { width: 55px; }
 
         .verify-btn {
             font-family: "Kanit", sans-serif;
@@ -117,14 +135,12 @@
             width: 100%;
             cursor: pointer;
             border: none;
-            background: #3b82f6;
+            background: #10b981; /* เปลี่ยนปุ่มเป็นสีเขียวให้ดูต่างจากปุ่ม Toggle */
             color: white;
             border-radius: 8px;
             transition: background 0.2s ease;
         }
-        .verify-btn:hover {
-            background: #2563eb;
-        }
+        .verify-btn:hover { background: #059669; }
 
         .error-msg {
             color: #ef4444;
@@ -133,6 +149,7 @@
             min-height: 20px;
         }
 
+        /* --- กล่องผลลัพธ์ --- */
         .result-container {
             margin-top: 30px;
             display: none;
@@ -171,7 +188,6 @@
             color: #0f172a;
         }
 
-        /* --- ส่วน Footer ด้านล่างสุด --- */
         .footer {
             margin-top: 40px;
             text-align: center;
@@ -179,68 +195,78 @@
             color: #64748b;
             line-height: 1.8;
         }
-        .footer a {
-            color: #2563eb;
-            text-decoration: none;
-            margin: 0 6px;
-            font-weight: 500;
-        }
-        .footer a:hover {
-            text-decoration: underline;
-        }
-        .version-tag {
-            position: fixed; 
-            bottom: 1.5rem; 
-            left: 1.5rem; 
-            font-size: 12px; 
-            color: #94a3b8;
-        }
+        .footer a { color: #2563eb; text-decoration: none; margin: 0 6px; font-weight: 500; }
+        .footer a:hover { text-decoration: underline; }
+        .version-tag { position: fixed; bottom: 1.5rem; left: 1.5rem; font-size: 12px; color: #94a3b8; }
     </style>
 </head>
 <body>
 
-    <!-- เปลี่ยนชื่อไฟล์รูปภาพตรง src ให้ตรงกับรูปที่คุณต้องการใช้งาน -->
     <header>
-        <img src="ModelCode_header.png" alt="TF Model Decoder Header" />
+        <img src="cv-header.png" alt="Model Decoder Header" />
     </header>
 
     <div class="card">
-        <h1>🚙 กรุณากรอกรหัส Model Name - LCV</h1>
-
-        <!-- ตัวเลือกช่วงปี -->
-        <div class="year-selector">
-            <input type="radio" id="yearBefore" name="yearGroup" value="before2020">
-            <label for="yearBefore">ก่อนรุ่นปี 2020</label>
+        
+        <!-- Toggle สลับตระกูลรถ LCV / CV -->
+        <div class="main-toggle">
+            <input type="radio" id="typeLCV" name="vehicleFamily" value="LCV" checked>
+            <label for="typeLCV">🚗 รถปิกอัพ (LCV)</label>
             
-            <input type="radio" id="yearAfter" name="yearGroup" value="after2020" checked>
-            <label for="yearAfter">หลังรุ่นปี 2020</label>
+            <input type="radio" id="typeCV" name="vehicleFamily" value="CV">
+            <label for="typeCV">🚚 รถบรรทุก (CV)</label>
         </div>
 
-        <!-- ช่องกรอกรหัส 10 ช่อง -->
-        <div class="code-inputs" id="codeInputContainer">
-            <input type="text" maxlength="1" class="code-box" placeholder="T">
-            <input type="text" maxlength="1" class="code-box" placeholder="F">
-            <input type="text" maxlength="1" class="code-box" placeholder="S">
-            <input type="text" maxlength="2" class="code-box engine-box" placeholder="46">
-            <input type="text" maxlength="1" class="code-box" placeholder="J">
-            <input type="text" maxlength="1" class="code-box" placeholder="C">
-            <input type="text" maxlength="1" class="code-box" placeholder="N">
-            <input type="text" maxlength="1" class="code-box" placeholder="H">
-            <input type="text" maxlength="1" class="code-box" placeholder="M">
-            <input type="text" maxlength="1" class="code-box" placeholder="T">
+        <h1 id="titleText">กรุณากรอกรหัส Model - LCV (11 หลัก)</h1>
+
+        <!-- ================= โซน LCV ================= -->
+        <div id="lcvSection">
+            <div class="year-selector">
+                <input type="radio" id="yearBefore" name="yearGroupLCV" value="before2020">
+                <label for="yearBefore">ก่อนรุ่นปี 2020</label>
+                <input type="radio" id="yearAfter" name="yearGroupLCV" value="after2020" checked>
+                <label for="yearAfter">หลังรุ่นปี 2020</label>
+            </div>
+            
+            <!-- ช่องกรอก LCV 10 ช่อง (11 ตัวอักษร) -->
+            <div class="code-inputs" id="lcvInputs">
+                <input type="text" maxlength="1" class="code-box lcv-box" placeholder="T">
+                <input type="text" maxlength="1" class="code-box lcv-box" placeholder="F">
+                <input type="text" maxlength="1" class="code-box lcv-box" placeholder="S">
+                <input type="text" maxlength="2" class="code-box lcv-box engine-box" placeholder="46">
+                <input type="text" maxlength="1" class="code-box lcv-box" placeholder="J">
+                <input type="text" maxlength="1" class="code-box lcv-box" placeholder="C">
+                <input type="text" maxlength="1" class="code-box lcv-box" placeholder="N">
+                <input type="text" maxlength="1" class="code-box lcv-box" placeholder="H">
+                <input type="text" maxlength="1" class="code-box lcv-box" placeholder="M">
+                <input type="text" maxlength="1" class="code-box lcv-box" placeholder="T">
+            </div>
+        </div>
+
+        <!-- ================= โซน CV ================= -->
+        <div id="cvSection" style="display: none;">
+            <!-- ช่องกรอก CV 8 ช่อง (9 ตัวอักษร) -->
+            <div class="code-inputs" id="cvInputs">
+                <input type="text" maxlength="1" class="code-box cv-box" placeholder="F">
+                <input type="text" maxlength="1" class="code-box cv-box" placeholder="R">
+                <input type="text" maxlength="1" class="code-box cv-box" placeholder="R">
+                <input type="text" maxlength="2" class="code-box cv-box engine-box" placeholder="90">
+                <input type="text" maxlength="1" class="code-box cv-box" placeholder="J">
+                <input type="text" maxlength="1" class="code-box cv-box" placeholder="N">
+                <input type="text" maxlength="1" class="code-box cv-box" placeholder="X">
+                <input type="text" maxlength="1" class="code-box cv-box" placeholder="B">
+            </div>
         </div>
 
         <button id="searchBtn" class="verify-btn">ตรวจสอบข้อมูล</button>
         <div id="errorMsg" class="error-msg"></div>
 
-        <!-- กล่องผลลัพธ์ -->
         <div id="resultContainer" class="result-container">
             <div class="result-header" id="displayCode"></div>
             <div class="result-grid" id="resultGrid"></div>
         </div>
     </div>
 
-    <!-- ลิงก์ไปยังส่วนต่างๆ ของระบบ -->
     <div class="footer">
         Created by <strong>NA</strong><br>
         <a href="https://lifeistoohard.github.io/wsm-stock-viewer/" target="_blank">WSM Stock</a> |
@@ -249,10 +275,7 @@
         <a href="https://lifeistoohard.github.io/wsm-stock-viewer/ParsTranslator.html" target="_blank">Part name Translator</a>
     </div>
 
-    <!-- ลายน้ำเวอร์ชันมุมซ้ายล่าง -->
-    <div class="version-tag">
-        V1.0 by NA
-    </div>
+    <div class="version-tag">V2.0 (LCV & CV) by NA</div>
 
     <script src="tf-model.js"></script>
 </body>
