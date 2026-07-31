@@ -136,7 +136,7 @@ function setupInputs(selector, maxCharsTotal) {
 
 // ผูก Event ให้ทั้งสองกลุ่ม
 setupInputs('.lcv-box', 11);
-setupInputs('.cv-box', 9);
+setupInputs('.cv-box', 10); // 🟢 แก้เป็น 10 ตัวอักษรสำหรับ CV
 
 // ----------------------------------------------------
 // ฟังก์ชันประมวลผล (แยก LCV และ CV)
@@ -151,7 +151,9 @@ function decodeModelCode() {
     resultContainer.style.display = "none";
 
     const activeInputs = currentFamily === "LCV" ? document.querySelectorAll('.lcv-box') : document.querySelectorAll('.cv-box');
-    const requiredLength = currentFamily === "LCV" ? 11 : 9;
+    
+    // 🟢 LCV รวม 11 ตัวอักษร / CV รวม 10 ตัวอักษร
+    const requiredLength = currentFamily === "LCV" ? 11 : 10;
     
     let fullCode = "";
     let codeParts = [];
@@ -203,28 +205,49 @@ function decodeLCV(codeParts, grid) {
     }
 }
 
+// 🟢 สร้างตัวแปรล็อคชื่อหัวข้อสำหรับ CV โดยเฉพาะ
+const cvCustomHeaders = [
+    "1: ตระกูล", 
+    "2: น้ำหนัก", 
+    "3: ระบบขับเคลื่อน", 
+    "4: เครื่องยนต์", 
+    "4: เครื่องยนต์ (EURO 5)", 
+    "5: ฐานล้อ", 
+    "6: แรงม้า", 
+    "7: รายละเอียดพิเศษ", 
+    "8: เฟืองท้าย", 
+    "9: รุ่นปี"
+];
+
 function decodeCV(codeParts, grid) {
-    const yearCode = codeParts[7]; 
+    // 🟢 หลักที่ 9 คือรุ่นปี ซึ่งอยู่กล่องที่ 9 (Index 8)
+    const yearCode = codeParts[8]; 
     
-    let yearDataStr = dbCV.data[8][yearCode] || ""; 
+    // 🟢 ข้อมูลปีอยู่ในคอลัมน์ J (Index 9)
+    let yearDataStr = dbCV.data[9][yearCode] || ""; 
     let yearMatch = yearDataStr.match(/\d{4}/);
     let yearNumber = yearMatch ? parseInt(yearMatch[0]) : 0; 
     
+    // เงื่อนไข: ถ้าปี >= 2024 ใช้คอลัมน์ E (Index 4), ถ้าไม่ถึงใช้คอลัมน์ D (Index 3)
     const engineColIndex = (yearNumber >= 2024) ? 4 : 3;
 
-    for (let i = 0; i < 8; i++) {
+    // 🟢 วนลูป 9 กล่อง
+    for (let i = 0; i < 9; i++) {
         let code = codeParts[i];
         let colIndex = i; 
         
         if (i === 3) {
+            // กล่องเครื่องยนต์
             colIndex = engineColIndex; 
         } else if (i > 3) {
+            // ตั้งแต่ฐานล้อเป็นต้นไป ต้องขยับ Index ข้ามคอลัมน์ E
             colIndex = i + 1;
         }
 
-        let headerText = dbCV.headers[colIndex];
+        // ใช้ชื่อหัวข้อจาก Array ที่เราตั้งไว้แทนการดึงจากชีต
+        let headerText = cvCustomHeaders[colIndex];
         let decodedValue = dbCV.data[colIndex][code] || `<span style="color:#ef4444;">${code} (ไม่พบรหัสนี้)</span>`;
-        appendResultBox(grid, headerText || `ตำแหน่ง ${i+1}`, decodedValue);
+        appendResultBox(grid, headerText, decodedValue);
     }
 }
 
