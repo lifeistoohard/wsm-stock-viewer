@@ -4,12 +4,14 @@ const API_KEY  = "AIzaSyAki5uoqv3JpG7sqZ7crpaALomcUxlD72k";
 const RANGE_LCV_AFTER  = "'TF_Model code'!A1:K"; 
 const RANGE_LCV_BEFORE = "'TF_Model code_Before2020'!A1:K"; 
 const RANGE_CV         = "'CV_Model code'!A1:J"; 
+const RANGE_ENGINE_SPECS = "'Engine_Specs'!A1:C"; // 🟢 เพิ่ม Sheet ใหม่
 
 let currentFamily = "LCV"; 
 let currentLCVRange = RANGE_LCV_AFTER; 
 
 let dbLCV = { headers: [], data: [] };
 let dbCV  = { headers: [], data: [] };
+let dbEngineSpecs = {}; // 🟢 เก็บข้อมูลสเปคเครื่องยนต์
 
 async function fetchSheet(range, targetDB, colCount) {
     const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}?key=${API_KEY}`;
@@ -38,12 +40,35 @@ async function loadData() {
     const errorMsg = document.getElementById("errorMsg");
     errorMsg.innerText = "กำลังโหลดข้อมูล...";
     document.getElementById("resultContainer").style.display = "none";
+    
     try {
+        // 1. โหลดข้อมูลรหัสหลัก
         if (currentFamily === "LCV") {
             await fetchSheet(currentLCVRange, dbLCV, 11);
         } else {
             await fetchSheet(RANGE_CV, dbCV, 10);
         }
+
+        // 2. 🟢 โหลดข้อมูล Engine Specs (โหลดแค่ครั้งเดียวพร้อมกันไปเลย)
+        const specUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE_ENGINE_SPECS}?key=${API_KEY}`;
+        const specRes = await fetch(specUrl);
+        const specObj = await specRes.json();
+        
+        dbEngineSpecs = {}; // ล้างข้อมูลเก่า
+        if (specObj.values && specObj.values.length > 1) {
+            // เริ่มลูปที่ i=1 เพื่อข้ามหัวข้อ (Row 1)
+            for (let i = 1; i < specObj.values.length; i++) {
+                let row = specObj.values[i];
+                if (row[0]) {
+                    // ใช้ชื่อเต็มๆ ในคอลัมน์ A เป็น Key
+                    dbEngineSpecs[row[0].trim()] = {
+                        emission: row[1] || "-",
+                        oil: row[2] || "-"
+                    };
+                }
+            }
+        }
+
         errorMsg.innerText = ""; 
     } catch (error) {
         console.error("Error:", error);
@@ -52,7 +77,7 @@ async function loadData() {
 }
 
 // ----------------------------------------------------
-// UI Toggles สลับประเภทรถ (รูปภาพ, ข้อความ และช่อง)
+// UI Toggles สลับประเภทรถ
 // ----------------------------------------------------
 document.querySelectorAll('input[name="vehicleFamily"]').forEach(radio => {
     radio.addEventListener('change', (e) => {
@@ -129,13 +154,11 @@ function setupInputs(selector, maxCharsTotal) {
         });
     });
 }
-
-// ผูก Event ให้ทั้งสองกลุ่ม
 setupInputs('.lcv-box', 11);
-setupInputs('.cv-box', 10); // CV รวมตัวอักษร 10 ตัว
+setupInputs('.cv-box', 10); 
 
 // ----------------------------------------------------
-// ฟังก์ชันประมวลผล (แยก LCV และ CV)
+// ฟังก์ชันประมวลผล 
 // ----------------------------------------------------
 function decodeModelCode() {
     const errorMsg = document.getElementById("errorMsg");
@@ -147,8 +170,6 @@ function decodeModelCode() {
     resultContainer.style.display = "none";
 
     const activeInputs = currentFamily === "LCV" ? document.querySelectorAll('.lcv-box') : document.querySelectorAll('.cv-box');
-    
-    // ความยาวตัวอักษรรวม: LCV = 11, CV = 10
     const requiredLength = currentFamily === "LCV" ? 11 : 10;
     
     let fullCode = "";
@@ -159,10 +180,7 @@ function decodeModelCode() {
         let val = input.value.trim().toUpperCase();
         fullCode += val;
         codeParts.push(val);
-        // เช็คว่ากรอกครบตาม MaxLength ของช่องนั้นๆ หรือไม่
-        if (val.length !== parseInt(input.getAttribute('maxlength'))) {
-            isValid = false;
-        }
+        if (val.length !== parseInt(input.getAttribute('maxlength'))) isValid = false;
     });
 
     if (!isValid || fullCode.length !== requiredLength) {
@@ -207,37 +225,20 @@ function decodeLCV(codeParts, grid) {
     }
 }
 
-// หัวข้อล็อคตายตัวสำหรับ CV
 const cvCustomHeaders = [
-    "1: ตระกูล", 
-    "2: น้ำหนัก", 
-    "3: ระบบขับเคลื่อน", 
-    "4: เครื่องยนต์", 
-    "4: เครื่องยนต์ (EURO 5)", 
-    "5: ฐานล้อ", 
-    "6: แรงม้า", 
-    "7: รายละเอียดพิเศษ", 
-    "8: เฟืองท้าย", 
-    "9: รุ่นปี"
+    "1: ตระกูล", "2: น้ำหนัก", "3: ระบบขับเคลื่อน", "4: เครื่องยนต์", 
+    "4: เครื่องยนต์ (EURO 5)", "5: ฐานล้อ", "6: แรงม้า", 
+    "7: รายละเอียดพิเศษ", "8: เฟืองท้าย", "9: รุ่นปี"
 ];
 
 function decodeCV(codeParts, grid) {
-    // หลักที่ 9 (รุ่นปี) อยู่ในกล่องที่ 9 (Index 8)
     const yearCode = codeParts[8]; 
-    
-    // ข้อมูลปีอยู่ในคอลัมน์ J (Index 9) ใน Sheet
-    let yearDataStr = "";
-    if (dbCV.data[9] && dbCV.data[9][yearCode]) {
-        yearDataStr = dbCV.data[9][yearCode];
-    }
-    
+    let yearDataStr = (dbCV.data[9] && dbCV.data[9][yearCode]) ? dbCV.data[9][yearCode] : "";
     let yearMatch = yearDataStr.match(/\d{4}/);
     let yearNumber = yearMatch ? parseInt(yearMatch[0]) : 0; 
     
-    // เงื่อนไข: ปี >= 2024 ใช้คอลัมน์ E (Index 4), ถ้าไม่ถึงใช้คอลัมน์ D (Index 3)
     const engineColIndex = (yearNumber >= 2024) ? 4 : 3;
 
-    // วนลูปสร้างกล่องผลลัพธ์ทั้ง 9 ช่อง
     for (let i = 0; i < 9; i++) {
         let code = codeParts[i];
         let colIndex = i; 
@@ -245,7 +246,7 @@ function decodeCV(codeParts, grid) {
         if (i === 3) {
             colIndex = engineColIndex; 
         } else if (i > 3) {
-            colIndex = i + 1; // ข้ามคอลัมน์ E
+            colIndex = i + 1; 
         }
 
         let headerText = cvCustomHeaders[colIndex];
@@ -257,12 +258,63 @@ function decodeCV(codeParts, grid) {
     }
 }
 
+// 🟢 ฟังก์ชันสร้างกล่องและเช็คการคลิก
 function appendResultBox(grid, label, value) {
     let itemDiv = document.createElement("div");
     itemDiv.className = "result-item";
-    itemDiv.innerHTML = `<span class="label">📍 ${label}</span><span class="value">${value}</span>`;
+    
+    // ตรวจสอบว่าหัวข้อมีคำว่า "เครื่องยนต์" หรือไม่ (เพื่อเปิดให้คลิกได้)
+    if (label.includes("เครื่องยนต์") && !value.includes("ไม่พบรหัสนี้")) {
+        itemDiv.classList.add("clickable-box");
+        itemDiv.innerHTML = `<span class="label">📍 ${label} <span class="info-badge">👆 คลิกดูข้อมูล</span></span><span class="value">${value}</span>`;
+        itemDiv.onclick = () => openModal(value);
+    } else {
+        itemDiv.innerHTML = `<span class="label">📍 ${label}</span><span class="value">${value}</span>`;
+    }
+    
     grid.appendChild(itemDiv);
 }
+
+// ----------------------------------------------------
+// 🟢 ระบบจัดการ Popup Modal
+// ----------------------------------------------------
+function openModal(engineFullName) {
+    const overlay = document.getElementById("infoModal");
+    const mTitle = document.getElementById("modalTitle");
+    const mBody = document.getElementById("modalBody");
+    
+    mTitle.innerText = engineFullName;
+    
+    // ค้นหาข้อมูลใน dbEngineSpecs โดยใช้ชื่อเต็มเป็นคีย์
+    const spec = dbEngineSpecs[engineFullName.trim()];
+    
+    if (spec) {
+        // เปลี่ยนการขึ้นบรรทัดใหม่จาก Google Sheet (\n) ให้เป็น <br> ใน HTML
+        const oilText = spec.oil.replace(/\n/g, "<br>");
+        mBody.innerHTML = `
+            <p><strong>💨 มาตรฐานไอเสีย:</strong> ${spec.emission}</p>
+            <hr style="border:0; border-top:1px dashed #ccc; margin:12px 0;">
+            <p><strong>🛢️ น้ำมันที่แนะนำ:</strong><br><br>${oilText}</p>
+        `;
+    } else {
+        mBody.innerHTML = `<p style="color:#ef4444; text-align:center;">❌ ยังไม่มีข้อมูลแนะนำน้ำมันหล่อลื่นสำหรับเครื่องยนต์รุ่นนี้ในระบบ</p>`;
+    }
+    
+    overlay.style.display = "flex";
+    // ใช้ setTimeout เพื่อให้ transition CSS ทำงานได้สมูท
+    setTimeout(() => overlay.classList.add("show"), 10);
+}
+
+function closeModal() {
+    const overlay = document.getElementById("infoModal");
+    overlay.classList.remove("show");
+    setTimeout(() => overlay.style.display = "none", 300);
+}
+
+// ปิด Modal เมื่อคลิกพื้นที่ว่างด้านนอก
+document.getElementById("infoModal").addEventListener("click", (e) => {
+    if (e.target.id === "infoModal") closeModal();
+});
 
 document.getElementById("searchBtn").addEventListener("click", decodeModelCode);
 
