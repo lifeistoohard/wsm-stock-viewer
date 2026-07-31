@@ -1,7 +1,6 @@
 const SHEET_ID = "19pJJpiDKatYgUmO_43SUyECxqTYaqfhwcQwYiuxn-d8"; 
 const API_KEY  = "AIzaSyAki5uoqv3JpG7sqZ7crpaALomcUxlD72k"; 
 
-// กำหนดชื่อ Sheet ให้ตรงกัน
 const RANGE_LCV_AFTER  = "'TF_Model code'!A1:K"; 
 const RANGE_LCV_BEFORE = "'TF_Model code_Before2020'!A1:K"; 
 const RANGE_CV         = "'CV_Model code'!A1:J"; 
@@ -61,13 +60,11 @@ document.querySelectorAll('input[name="vehicleFamily"]').forEach(radio => {
         document.getElementById("resultContainer").style.display = "none";
         document.getElementById("errorMsg").innerText = "";
 
-        // ตัวแปรสำหรับเชื่อมต่อหน้า UI
         const headerImg = document.getElementById("headerImg");
         const titleText = document.getElementById("titleText");
         const lcvSection = document.getElementById("lcvSection");
         const cvSection = document.getElementById("cvSection");
 
-        // สลับ UI
         if (currentFamily === "LCV") {
             lcvSection.style.display = "block";
             cvSection.style.display = "none";
@@ -79,7 +76,6 @@ document.querySelectorAll('input[name="vehicleFamily"]').forEach(radio => {
             titleText.innerText = "กรุณากรอกรหัส Model Name - CV";
             headerImg.src = "CVModelCode_header.png";
         }
-        
         loadData(); 
     });
 });
@@ -99,7 +95,7 @@ function setupInputs(selector, maxCharsTotal) {
     inputs.forEach((input, index) => {
         input.addEventListener('input', () => {
             input.value = input.value.toUpperCase();
-            if (input.value.length === input.maxLength) {
+            if (input.value.length === parseInt(input.getAttribute('maxlength'))) {
                 if (index < inputs.length - 1) inputs[index + 1].focus();
             }
         });
@@ -122,7 +118,7 @@ function setupInputs(selector, maxCharsTotal) {
             let currentPos = 0;
             for (let i = 0; i < inputs.length; i++) {
                 if (currentPos >= pastedText.length) break;
-                let maxLen = inputs[i].maxLength;
+                let maxLen = parseInt(inputs[i].getAttribute('maxlength'));
                 inputs[i].value = pastedText.substring(currentPos, currentPos + maxLen);
                 inputs[i].focus();
                 currentPos += maxLen;
@@ -136,7 +132,7 @@ function setupInputs(selector, maxCharsTotal) {
 
 // ผูก Event ให้ทั้งสองกลุ่ม
 setupInputs('.lcv-box', 11);
-setupInputs('.cv-box', 10); // 🟢 แก้เป็น 10 ตัวอักษรสำหรับ CV
+setupInputs('.cv-box', 10); // CV รวมตัวอักษร 10 ตัว
 
 // ----------------------------------------------------
 // ฟังก์ชันประมวลผล (แยก LCV และ CV)
@@ -152,7 +148,7 @@ function decodeModelCode() {
 
     const activeInputs = currentFamily === "LCV" ? document.querySelectorAll('.lcv-box') : document.querySelectorAll('.cv-box');
     
-    // 🟢 LCV รวม 11 ตัวอักษร / CV รวม 10 ตัวอักษร
+    // ความยาวตัวอักษรรวม: LCV = 11, CV = 10
     const requiredLength = currentFamily === "LCV" ? 11 : 10;
     
     let fullCode = "";
@@ -163,11 +159,14 @@ function decodeModelCode() {
         let val = input.value.trim().toUpperCase();
         fullCode += val;
         codeParts.push(val);
-        if (val.length !== input.maxLength) isValid = false;
+        // เช็คว่ากรอกครบตาม MaxLength ของช่องนั้นๆ หรือไม่
+        if (val.length !== parseInt(input.getAttribute('maxlength'))) {
+            isValid = false;
+        }
     });
 
     if (!isValid || fullCode.length !== requiredLength) {
-        errorMsg.innerText = `❌ กรุณากรอกรหัสให้ครบทุกช่อง`;
+        errorMsg.innerText = `❌ กรุณากรอกรหัสให้ครบทุกช่อง (LCV = 11 หลัก, CV = 10 หลัก)`;
         return;
     }
 
@@ -200,12 +199,15 @@ function decodeLCV(codeParts, grid) {
                 headerText = dbLCV.headers[10] || "รุ่นปี";
             }
         }
-        let decodedValue = dbLCV.data[colIndex][code] || `<span style="color:#ef4444;">${code} (ไม่พบรหัสนี้)</span>`;
+        let decodedValue = dbLCV.data[colIndex] && dbLCV.data[colIndex][code] 
+            ? dbLCV.data[colIndex][code] 
+            : `<span style="color:#ef4444;">${code} (ไม่พบรหัสนี้)</span>`;
+            
         appendResultBox(grid, headerText || `ตำแหน่ง ${i+1}`, decodedValue);
     }
 }
 
-// 🟢 สร้างตัวแปรล็อคชื่อหัวข้อสำหรับ CV โดยเฉพาะ
+// หัวข้อล็อคตายตัวสำหรับ CV
 const cvCustomHeaders = [
     "1: ตระกูล", 
     "2: น้ำหนัก", 
@@ -220,33 +222,37 @@ const cvCustomHeaders = [
 ];
 
 function decodeCV(codeParts, grid) {
-    // 🟢 หลักที่ 9 คือรุ่นปี ซึ่งอยู่กล่องที่ 9 (Index 8)
+    // หลักที่ 9 (รุ่นปี) อยู่ในกล่องที่ 9 (Index 8)
     const yearCode = codeParts[8]; 
     
-    // 🟢 ข้อมูลปีอยู่ในคอลัมน์ J (Index 9)
-    let yearDataStr = dbCV.data[9][yearCode] || ""; 
+    // ข้อมูลปีอยู่ในคอลัมน์ J (Index 9) ใน Sheet
+    let yearDataStr = "";
+    if (dbCV.data[9] && dbCV.data[9][yearCode]) {
+        yearDataStr = dbCV.data[9][yearCode];
+    }
+    
     let yearMatch = yearDataStr.match(/\d{4}/);
     let yearNumber = yearMatch ? parseInt(yearMatch[0]) : 0; 
     
-    // เงื่อนไข: ถ้าปี >= 2024 ใช้คอลัมน์ E (Index 4), ถ้าไม่ถึงใช้คอลัมน์ D (Index 3)
+    // เงื่อนไข: ปี >= 2024 ใช้คอลัมน์ E (Index 4), ถ้าไม่ถึงใช้คอลัมน์ D (Index 3)
     const engineColIndex = (yearNumber >= 2024) ? 4 : 3;
 
-    // 🟢 วนลูป 9 กล่อง
+    // วนลูปสร้างกล่องผลลัพธ์ทั้ง 9 ช่อง
     for (let i = 0; i < 9; i++) {
         let code = codeParts[i];
         let colIndex = i; 
         
         if (i === 3) {
-            // กล่องเครื่องยนต์
             colIndex = engineColIndex; 
         } else if (i > 3) {
-            // ตั้งแต่ฐานล้อเป็นต้นไป ต้องขยับ Index ข้ามคอลัมน์ E
-            colIndex = i + 1;
+            colIndex = i + 1; // ข้ามคอลัมน์ E
         }
 
-        // ใช้ชื่อหัวข้อจาก Array ที่เราตั้งไว้แทนการดึงจากชีต
         let headerText = cvCustomHeaders[colIndex];
-        let decodedValue = dbCV.data[colIndex][code] || `<span style="color:#ef4444;">${code} (ไม่พบรหัสนี้)</span>`;
+        let decodedValue = dbCV.data[colIndex] && dbCV.data[colIndex][code] 
+            ? dbCV.data[colIndex][code] 
+            : `<span style="color:#ef4444;">${code} (ไม่พบรหัสนี้)</span>`;
+            
         appendResultBox(grid, headerText, decodedValue);
     }
 }
