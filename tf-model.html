@@ -66,22 +66,18 @@
             transition: all 0.3s ease;
         }
         .main-toggle input[type="radio"] { display: none; }
-        
-        /* 🔴 ถ้าเลือก LCV ให้ปุ่มเป็นสีแดง */
         .main-toggle input[type="radio"]#typeLCV:checked + label {
             background: #db2e33;
             color: #ffffff;
             box-shadow: 0 4px 10px rgba(219, 46, 51, 0.3);
         }
-        
-        /* 🔵 ถ้าเลือก CV ให้ปุ่มเป็นสีฟ้า */
         .main-toggle input[type="radio"]#typeCV:checked + label {
             background: #3b82f6;
             color: #ffffff;
             box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
         }
 
-        /* --- Toggle ย่อยของ LCV (ก่อน-หลัง 2020) --- */
+        /* --- Toggle ย่อย LCV (ก่อน-หลัง 2020) --- */
         .year-selector {
             display: flex;
             background: #f0f4f8;
@@ -103,7 +99,7 @@
         .year-selector input[type="radio"] { display: none; }
         .year-selector input[type="radio"]:checked + label {
             background: #ffffff;
-            color: #db2e33; /* สีตัวอักษรของปีให้เข้ากับธีม LCV */
+            color: #db2e33; 
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
 
@@ -212,7 +208,6 @@
 <body>
 
     <header>
-        <!-- เพิ่ม ID ให้รูปภาพ เพื่อใช้ JS สลับรูป -->
         <img id="headerImg" src="ModelCode_header.png" alt="Model Decoder Header" />
     </header>
 
@@ -227,7 +222,6 @@
             <label for="typeCV">🚚 รถบรรทุก (CV)</label>
         </div>
 
-        <!-- เพิ่ม ID ให้ Header เพื่อสลับข้อความ -->
         <h1 id="titleText">กรุณากรอกรหัส Model Name - LCV</h1>
 
         <!-- ================= โซน LCV ================= -->
@@ -239,7 +233,6 @@
                 <label for="yearAfter">หลังรุ่นปี 2020</label>
             </div>
             
-            <!-- ช่องกรอก LCV 10 ช่อง (11 ตัวอักษร) -->
             <div class="code-inputs" id="lcvInputs">
                 <input type="text" maxlength="1" class="code-box lcv-box" placeholder="T">
                 <input type="text" maxlength="1" class="code-box lcv-box" placeholder="F">
@@ -254,10 +247,9 @@
             </div>
         </div>
 
- <!-- ================= โซน CV ================= -->
-        <!-- ตัวเลือกปี "ก่อน/หลัง 2020" จะไม่ปรากฏที่นี่ เพราะเราแยกส่วนกัน -->
+        <!-- ================= โซน CV ================= -->
         <div id="cvSection" style="display: none;">
-            <!-- ช่องกรอก CV 9 ช่อง (10 ตัวอักษร) -->
+            <!-- CV มีทั้งหมด 9 ช่อง รวม 10 ตัวอักษร -->
             <div class="code-inputs" id="cvInputs">
                 <input type="text" maxlength="1" class="code-box cv-box" placeholder="F">
                 <input type="text" maxlength="1" class="code-box cv-box" placeholder="R">
@@ -288,7 +280,7 @@
         <a href="https://lifeistoohard.github.io/wsm-stock-viewer/ParsTranslator.html" target="_blank">Part name Translator</a>
     </div>
 
-    <div class="version-tag">V2.1 (LCV & CV) by NA</div>
+    <div class="version-tag">V2.2 (LCV & CV) by NA</div>
 
     <script src="tf-model.js"></script>
 </body>
